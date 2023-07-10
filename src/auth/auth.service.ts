@@ -26,10 +26,11 @@ export class AuthService {
   }
 
   async generateRefreshToken(user: User): Promise<string> {
+    const userInfo = await this.userService.user(user.email);
+
     const payload = {
       email: user.email,
-      firstName: user.firstName,
-      lastName: user.lastName,
+      id: userInfo.id,
     }
 
     const token = await this.jwtService.signAsync(payload, {
@@ -40,28 +41,10 @@ export class AuthService {
     return token;
   }
 
-  // refresh token 저장
-  async signIn(authorization) {
-
-    const user = await this.userService.user(authorization.email);
-  }
-
   // access 토큰 안되면 refresh 토큰 가져오기
   async refresh(token: string) {
     // decoded 토큰을 이용해 유저의 정보 가져오기
     const decodedToken = await this.jwtService.decode(token);
     console.log(decodedToken);
-    // refresh 토큰 가져오기
-    // const user = await this.userService.user({email:decodedToken.email});
-
-    // refresh 체크 
-    // if (user.refreshToken) {
-    //   throw new UnauthorizedException();
-    // }
   }
 }
-
-import { BadRequestException, NotFoundException } from '@nestjs/common';
-// import { LoginDto } from './model/login.dto';
-// import { Payload } from './payload/payload.interface';
-// import { ConfigService } from '@nestjs/config';

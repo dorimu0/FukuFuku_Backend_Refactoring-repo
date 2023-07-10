@@ -1,9 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy, VerifyCallback } from 'passport-google-oauth20';
-// import { config } from 'dotenv';
+import { config } from 'dotenv';
 
-// config();
+config();
+
 console.log(process.env.CLIENT_ID)
 
 @Injectable()
@@ -16,12 +17,6 @@ export class GOuthStrategy extends PassportStrategy(Strategy, 'google') {
         callbackURL: process.env.CALLBACK_URL,
         scope: [process.env.GOAUTH_SCOPE_A, process.env.GOAUTH_SCOPE_Z],
     }
-    // super({
-    //   clientID: '147192909497-mdka615lhnqrd2a562r1th9apgj36qpt.apps.googleusercontent.com',
-    //   clientSecret: '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',
-    //   callbackURL: 'http://localhost:3000/google/redirect',
-    //   scope: ['email', 'profile'],
-    // });
     super(client);
   }
   
