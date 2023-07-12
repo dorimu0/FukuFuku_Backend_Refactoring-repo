@@ -9,14 +9,13 @@ datasource db {
 
 model User {
   id           Int         @id @default(autoincrement())
-  email        String      @db.VarChar(40) @unique
+  email        String      @unique @db.VarChar(40)
   picture      String      @db.VarChar(100)
   firstName    String      @db.VarChar(10)
   lastName     String      @db.VarChar(15)
   isAdmin      Int?
-  refreshToken String?     @db.VarChar(250) @unique
+  refreshToken String?     @unique @db.VarChar(250)
   nickName     String?     @db.VarChar(10)
-  post         Post[]
   userimage    Userimage[]
 }
 
@@ -27,26 +26,18 @@ model Userimage {
   user User    @relation(fields: [u_id], references: [id], onDelete: Cascade)
 }
 
-model Post {
-  id        Int         @unique @default(autoincrement())
-  u_id      Int
-  title     String      @db.VarChar(20)
-  content   String      @db.Text
-  like      Int?        @default(0)
-  views     Int?        @default(0)
-  writeDate DateTime    @db.Date
-  comment   Comment[]
-  user      User        @relation(fields: [u_id], references: [id], onDelete: NoAction)
-  postimage Postimage[]
-
-  @@id([id, u_id])
+model Board {
+  id      Int    @unique @default(autoincrement())
+  title   String @db.VarChar(20)
+  content String @db.Text
+  like    Int?   @default(0)
+  views   Int?   @default(0)
 }
 
 model Postimage {
   id   Int     @id @default(autoincrement())
   p_id Int
   url  String? @db.VarChar(50)
-  post Post    @relation(fields: [p_id], references: [id], onDelete: Cascade)
 }
 
 model Comment {
@@ -55,7 +46,6 @@ model Comment {
   commenter String  @db.VarChar(10)
   comment   String  @db.VarChar(100)
   like      Int?    @default(0)
-  post      Post    @relation(fields: [p_id], references: [id], onDelete: Cascade)
   reply     Reply[]
 
   @@id([id, p_id])
