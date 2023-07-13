@@ -8,23 +8,15 @@ datasource db {
 }
 
 model User {
-  id           Int         @id @default(autoincrement())
-  email        String      @db.VarChar(40) @unique
-  picture      String      @db.VarChar(100)
-  firstName    String      @db.VarChar(10)
-  lastName     String      @db.VarChar(15)
-  isAdmin      Int?
-  refreshToken String?     @db.VarChar(250) @unique
-  nickName     String?     @db.VarChar(10)
-  post         Post[]
-  userimage    Userimage[]
-}
-
-model Userimage {
-  id   Int     @id @default(autoincrement())
-  u_id Int     @unique
-  url  String? @db.VarChar(50)
-  user User    @relation(fields: [u_id], references: [id], onDelete: Cascade)
+  id        Int         @id @default(autoincrement())
+  email     String      @unique @db.VarChar(40)
+  picture   String      @db.VarChar(100)
+  firstName String      @db.VarChar(10)
+  lastName  String      @db.VarChar(15)
+  isAdmin   Int?
+  nickName  String?     @db.VarChar(10)
+  post      Post[]
+  like      Like[]
 }
 
 model Post {
@@ -32,14 +24,24 @@ model Post {
   u_id      Int
   title     String      @db.VarChar(20)
   content   String      @db.Text
-  like      Int?        @default(0)
   views     Int?        @default(0)
   writeDate DateTime    @db.Date
   comment   Comment[]
   user      User        @relation(fields: [u_id], references: [id], onDelete: NoAction)
   postimage Postimage[]
+  like      Like[]
 
   @@id([id, u_id])
+}
+
+model Like {
+  id   Int  @unique @default(autoincrement())
+  p_id Int
+  u_id Int
+  post Post @relation(fields: [p_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  user User @relation(fields: [u_id], references: [id], onDelete: Cascade)
+
+  @@id([id, p_id, u_id])
 }
 
 model Postimage {
