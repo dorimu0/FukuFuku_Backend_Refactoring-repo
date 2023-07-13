@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { UserRepository } from './user.repository';
 import { CreateUserDto } from './dto/create-user.dto';
-import { SignUserDto } from './dto/sign-user.dto';
 
 @Injectable()
 export class UserService {
@@ -10,16 +9,12 @@ export class UserService {
   ) { }
 
   user(email: string) {
-    return this.userRepository.user({ email });
+    return this.userRepository.findOne({ email });
   }
 
   async signUp(userDto: CreateUserDto) {
     await this.userRepository.createUser(userDto);
   }
-
-  // token(signUserDto: SignUserDto) {
-  //   return this.userRepository.user({signUserDto.token});
-  // }
 
   // refresh token 기간 끝 OR 가입
   async sign(userDto: CreateUserDto) {
@@ -27,12 +22,7 @@ export class UserService {
     // 가입 여부 확인
     let userInfo = await this.user(userDto.email);
 
-    if (userInfo) {
-      await this.userRepository.updateUser({
-        where: { email: userDto.email },
-        data: { refreshToken: userDto.refreshToken }
-      });
-
+    if (userInfo !== null) {
       return userInfo;
     }
 
@@ -41,7 +31,6 @@ export class UserService {
 
     userInfo = await this.user(userDto.email);
 
-    return userInfo;
+    return userInfo
   }
-
 }
