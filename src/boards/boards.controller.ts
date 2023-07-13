@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  Header,
   Param,
   ParseIntPipe,
   Post,
@@ -15,21 +16,28 @@ import { CreateBoardDto } from './dto/create-board.dto';
 export class BoardsController {
   constructor(private postsService: BoardsService) {}
 
+  // 전체 게시물 가져오기
   @Get()
   getAllBoard(): Promise<Board[]> {
     return this.postsService.getAllBoards();
   }
 
+  // id로 게시물 가져오기
   @Get('/:id')
   getBoardById(@Param('id', ParseIntPipe) id: number): Promise<Board> {
     return this.postsService.getBoardById(id);
   }
 
+  // 게시물 생성
   @Post()
-  createBoard(@Body() createPostDto: CreateBoardDto): Promise<Board> {
-    return this.postsService.createBoard(createPostDto);
+  createBoard(
+    @Header('Authorization') authorization: string,
+    @Body() createPostDto: CreateBoardDto,
+  ): Promise<Board> {
+    return this.postsService.createBoard(createPostDto, authorization);
   }
 
+  // 게시물 삭제
   @Delete('/:id')
   deleteBoard(@Param('id', ParseIntPipe) id: number): Promise<Board> {
     return this.postsService.deleteBoard(id);

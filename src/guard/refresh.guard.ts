@@ -16,7 +16,7 @@ export class RefreshGuard implements CanActivate {
     private readonly jwtService: JwtService,
     private readonly authService: AuthService,
     private readonly configService: ConfigService,
-  ) { }
+  ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
@@ -27,21 +27,21 @@ export class RefreshGuard implements CanActivate {
     }
 
     try {
-      await this.jwtService.verifyAsync(
-        refreshToken,
-        {
-          secret: this.configService.get<string>('JWT_REFRESH_SECRET')
-        }
-      );
+      await this.jwtService.verifyAsync(refreshToken, {
+        secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
+      });
 
-      const token = await this.authService.generateAccessToken({ refreshToken });
+      const token = await this.authService.generateAccessToken({
+        refreshToken,
+      });
 
       request['body']['accessToken'] = token;
 
       return true;
     } catch (error) {
       switch (error?.name) {
-        case 'TokenExpiredError': throw new UnauthorizedException(error);
+        case 'TokenExpiredError':
+          throw new UnauthorizedException(error);
         default: {
           const response = context.switchToHttp().getResponse();
           await this.reLogin(response);

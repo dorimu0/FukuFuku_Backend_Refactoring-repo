@@ -12,7 +12,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
     private readonly gOauthService: GOauthService,
-  ) { }
+  ) {}
 
   async signByGOuth(req) {
     const googleUserInfo = this.gOauthService.googleLogin(req);
@@ -21,20 +21,23 @@ export class AuthService {
     const accessToken = await this.generateAccessToken(googleUserInfo.email);
     const refreshToken = await this.generateRefreshToken(googleUserInfo);
 
-    const userInfo = await this.userService.sign({ ...googleUserInfo, refreshToken: refreshToken });
+    const userInfo = await this.userService.sign({
+      ...googleUserInfo,
+      refreshToken: refreshToken,
+    });
 
     return { ...userInfo, accessToken };
   }
 
   async generateAccessToken(userInfo: UserInfo): Promise<string> {
-    const payload = { email: userInfo.email }
+    const payload = { email: userInfo.email };
 
     const token = await this.jwtService.signAsync(payload, {
       secret: this.configService.get<string>('JWT_ACCESS_SECRET'),
-      expiresIn: this.configService.get<string>('JWT_ACCESS_EXPRIESIN')
+      expiresIn: this.configService.get<string>('JWT_ACCESS_EXPRIESIN'),
     });
 
-    const refreshToken = "Bearer " + token;
+    const refreshToken = 'Bearer ' + token;
 
     return refreshToken;
   }
@@ -42,14 +45,14 @@ export class AuthService {
   async generateRefreshToken(userInfo: UserInfo): Promise<string> {
     const payload = {
       email: userInfo.email,
-    }
+    };
 
     const token = await this.jwtService.signAsync(payload, {
       secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
       expiresIn: this.configService.get<string>('JWT_REFRESH_EXPRIESIN'),
     });
 
-    const accessToken = "Bearer " + token;
+    const accessToken = 'Bearer ' + token;
 
     return accessToken;
   }

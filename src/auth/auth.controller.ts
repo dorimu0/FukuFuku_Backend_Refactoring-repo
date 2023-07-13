@@ -1,4 +1,12 @@
-import { Controller, Get, Req, UseGuards, Request, Body, Post } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Req,
+  UseGuards,
+  Request,
+  Body,
+  Post,
+} from '@nestjs/common';
 import { AuthGuard as pAauthGuard } from '@nestjs/passport';
 import { AccessGuard } from '../guard/access.guard';
 import { RefreshGuard } from 'src/guard/refresh.guard';
@@ -12,9 +20,7 @@ config();
 
 @Controller('auth')
 export class AuthController {
-  constructor(
-    private readonly authService: AuthService
-  ) { }
+  constructor(private readonly authService: AuthService) {}
 
   @Get()
   @UseGuards(pAauthGuard('google'))

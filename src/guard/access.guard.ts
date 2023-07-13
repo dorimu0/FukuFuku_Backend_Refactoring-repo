@@ -4,7 +4,7 @@ import {
   Injectable,
   UnauthorizedException,
   GoneException,
-  Res
+  Res,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Request, Response } from 'express';
@@ -15,7 +15,7 @@ export class AccessGuard implements CanActivate {
   constructor(
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
-  ) { }
+  ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
@@ -24,16 +24,13 @@ export class AccessGuard implements CanActivate {
       throw new UnauthorizedException();
     }
     try {
-      await this.jwtService.verifyAsync(
-        token,
-        {
-          secret: this.configService.get<string>('JWT_ACCESS_SECRET')
-        }
-      );
+      await this.jwtService.verifyAsync(token, {
+        secret: this.configService.get<string>('JWT_ACCESS_SECRET'),
+      });
     } catch (error) {
-
       switch (error?.name) {
-        case 'TokenExpiredError': throw new GoneException(error);
+        case 'TokenExpiredError':
+          throw new GoneException(error);
         default: {
           const response = context.switchToHttp().getResponse();
           this.reLogin(response);
@@ -44,7 +41,7 @@ export class AccessGuard implements CanActivate {
   }
 
   private extractTokenFromHeader(request: Request): string | undefined {
-    const [type, token] = request.headers.authorization?.split(' ') ?? [];;
+    const [type, token] = request.headers.authorization?.split(' ') ?? [];
     return type === 'Bearer' ? token : undefined;
   }
 

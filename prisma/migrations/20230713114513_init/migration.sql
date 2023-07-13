@@ -27,15 +27,13 @@ CREATE TABLE `Userimage` (
 -- CreateTable
 CREATE TABLE `Board` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
-    `u_id` INTEGER NOT NULL,
     `title` VARCHAR(20) NOT NULL,
     `content` TEXT NOT NULL,
     `like` INTEGER NULL DEFAULT 0,
     `views` INTEGER NULL DEFAULT 0,
-    `writeDate` DATE NOT NULL,
+    `userId` INTEGER NOT NULL,
 
-    UNIQUE INDEX `Board_id_key`(`id`),
-    PRIMARY KEY (`id`, `u_id`)
+    UNIQUE INDEX `Board_id_key`(`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
@@ -75,13 +73,7 @@ CREATE TABLE `Reply` (
 ALTER TABLE `Userimage` ADD CONSTRAINT `Userimage_u_id_fkey` FOREIGN KEY (`u_id`) REFERENCES `User`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `Board` ADD CONSTRAINT `Board_u_id_fkey` FOREIGN KEY (`u_id`) REFERENCES `User`(`id`) ON DELETE NO ACTION ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE `Postimage` ADD CONSTRAINT `Postimage_p_id_fkey` FOREIGN KEY (`p_id`) REFERENCES `Board`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE `Comment` ADD CONSTRAINT `Comment_p_id_fkey` FOREIGN KEY (`p_id`) REFERENCES `Board`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `Board` ADD CONSTRAINT `Board_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `User`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `Reply` ADD CONSTRAINT `Reply_c_id_fkey` FOREIGN KEY (`c_id`) REFERENCES `Comment`(`id`) ON DELETE NO ACTION ON UPDATE CASCADE;
