@@ -1,35 +1,47 @@
 import { Injectable } from '@nestjs/common';
 import { UserService } from '../user/user.service';
-import { UserInfo as User } from './entity/userInfo.entity';
+import { UserInfo } from './entity/userInfo.entity';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
+import { GOauthService } from './g-oauth/g-oauth.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly userService: UserService,
     private readonly jwtService: JwtService,
-    private readonly configService: ConfigService
+    private readonly configService: ConfigService,
+    private readonly gOauthService: GOauthService,
   ) { }
 
-  async generateAccessToken(email: string): Promise<string> {
-    const payload = { email }
+  async signByGOuth(req) {
+    const googleUserInfo = this.gOauthService.googleLogin(req);
+
+    // token
+    const accessToken = await this.generateAccessToken(googleUserInfo.email);
+    const refreshToken = await this.generateRefreshToken(googleUserInfo);
+
+    const userInfo = await this.userService.sign({ ...googleUserInfo, refreshToken: refreshToken });
+
+    return { ...userInfo, accessToken };
+  }
+
+  async generateAccessToken(userInfo: UserInfo): Promise<string> {
+    const payload = { email: userInfo.email }
 
     const token = await this.jwtService.signAsync(payload, {
       secret: this.configService.get<string>('JWT_ACCESS_SECRET'),
       expiresIn: this.configService.get<string>('JWT_ACCESS_EXPRIESIN')
     });
-    // response.appendHeader('Authorization')
-    // response.setHeader('Authorization',`Bearer ${token}`);
-    return "Bearer " + token;
+
+    const refreshToken = "Bearer " + token;
+
+    return refreshToken;
   }
 
-  async generateRefreshToken(user: User): Promise<string> {
-    const userInfo = await this.userService.user(user.email);
-
+  async generateRefreshToken(userInfo: UserInfo): Promise<string> {
     const payload = {
-      email: user.email,
-      id: userInfo.id,
+      email: userInfo.email,
     }
 
     const token = await this.jwtService.signAsync(payload, {
@@ -37,13 +49,8 @@ export class AuthService {
       expiresIn: this.configService.get<string>('JWT_REFRESH_EXPRIESIN'),
     });
 
-    return token;
-  }
+    const accessToken = "Bearer " + token;
 
-  // access 토큰 안되면 refresh 토큰 가져오기
-  refresh(token: string) {
-    // decoded 토큰을 이용해 유저의 정보 가져오기
-    const decodedToken = this.jwtService.decode(token);
-    return decodedToken;
+    return accessToken;
   }
 }
