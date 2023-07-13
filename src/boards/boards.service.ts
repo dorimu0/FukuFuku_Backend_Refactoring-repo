@@ -21,8 +21,8 @@ export class BoardsService {
     return found;
   }
 
-  createBoard(createPostDto: CreateBoardDto, authorization): Promise<Board> {
-    return this.postRepository.createBoard(createPostDto, authorization);
+  createBoard(createPostDto: CreateBoardDto, accessToken): Promise<Board> {
+    return this.postRepository.createBoard(createPostDto, accessToken);
   }
 
   deleteBoard(id: number): Promise<Board> {

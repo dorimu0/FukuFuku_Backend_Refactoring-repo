@@ -3,14 +3,16 @@ import {
   Controller,
   Delete,
   Get,
-  Header,
   Param,
   ParseIntPipe,
   Post,
+  Request,
+  UseGuards,
 } from '@nestjs/common';
 import { Board } from '@prisma/client';
 import { BoardsService } from './boards.service';
 import { CreateBoardDto } from './dto/create-board.dto';
+import { RefreshGuard } from 'src/guard/refresh.guard';
 
 @Controller('boards')
 export class BoardsController {
@@ -29,12 +31,14 @@ export class BoardsController {
   }
 
   // 게시물 생성
+  @UseGuards(RefreshGuard)
   @Post()
   createBoard(
-    @Header('Authorization') authorization: string,
     @Body() createPostDto: CreateBoardDto,
+    @Request() req,
   ): Promise<Board> {
-    return this.postsService.createBoard(createPostDto, authorization);
+    const { accessToken } = req.body;
+    return this.postsService.createBoard(createPostDto, accessToken);
   }
 
   // 게시물 삭제

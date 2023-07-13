@@ -17,9 +17,7 @@ dotenv.config({
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
-    cors: {
-      origin: 'http://localhost:5173',
-    },
+    cors: true,
   });
   const prismaService = app.get(PrismaService);
   await prismaService.enableShutdownHooks(app);
