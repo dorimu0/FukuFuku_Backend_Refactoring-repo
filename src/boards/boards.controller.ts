@@ -37,8 +37,7 @@ export class BoardsController {
     @Body() createPostDto: CreateBoardDto,
     @Request() req,
   ): Promise<Board> {
-    const { accessToken } = req.body;
-    return this.postsService.createBoard(createPostDto, accessToken);
+    return this.postsService.createBoard(createPostDto);
   }
 
   // 게시물 삭제

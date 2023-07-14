@@ -22,9 +22,9 @@ config();
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @Get()
+  @Get('google')
   @UseGuards(pAauthGuard('google'))
-  googleAuth(@Req() req) {}
+  async googleAuth() {}
 
   @Get(process.env.CALLBACK_PATH)
   @UseGuards(pAauthGuard('google'))

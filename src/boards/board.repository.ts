@@ -13,10 +13,7 @@ export class BoardRepository {
   }
 
   // 게시물 생성 할때 Dto를 사용하여 데이터를 받아오고 PrismaService를 사용하여 데이터베이스에 저장
-  async createBoard(
-    createPostDto: CreateBoardDto,
-    accessToken,
-  ): Promise<Board> {
+  async createBoard(createPostDto: CreateBoardDto): Promise<Board> {
     const { title, content } = createPostDto;
 
     const board = await this.prismaService.board.create({
