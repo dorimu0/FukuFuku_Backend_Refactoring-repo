@@ -2,9 +2,9 @@ import {
   CanActivate,
   ExecutionContext,
   Injectable,
-  UnauthorizedException,
   GoneException,
-  Res
+  Res,
+  UnprocessableEntityException
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Request, Response } from 'express';
@@ -21,7 +21,7 @@ export class AccessGuard implements CanActivate {
     const request = context.switchToHttp().getRequest();
     const token = this.extractTokenFromHeader(request);
     if (!token) {
-      throw new UnauthorizedException();
+      throw new UnprocessableEntityException();
     }
     try {
       await this.jwtService.verifyAsync(
@@ -44,8 +44,12 @@ export class AccessGuard implements CanActivate {
   }
 
   private extractTokenFromHeader(request: Request): string | undefined {
-    const [type, token] = request.headers.authorization?.split(' ') ?? [];;
-    return type === 'Bearer' ? token : undefined;
+    try {
+      const [type, token] = request.headers.authorization.split(' ') ?? [];
+      return type === 'Bearer' ? token : undefined;
+    } catch (error) {
+      throw new UnprocessableEntityException(error.name);
+    }
   }
 
   async reLogin(@Res() response: Response) {
