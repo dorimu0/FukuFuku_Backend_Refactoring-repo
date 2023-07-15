@@ -2,11 +2,12 @@ import {
   CanActivate,
   ExecutionContext,
   Injectable,
-  Res,
   UnauthorizedException,
+  UnprocessableEntityException,
+  InternalServerErrorException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { Response } from 'express';
+import { Request, Response } from 'express';
 import { AuthService } from '../auth/auth.service';
 import { ConfigService } from '@nestjs/config';
 
@@ -20,33 +21,43 @@ export class RefreshGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
-    const refreshToken = this.extractTokenFromBody(request);
+    const tokens = this.extractTokenFromBody(request);
 
-    if (!refreshToken) {
-      throw new UnauthorizedException();
+    if (!tokens['refreshToken'] || !tokens['accessToken']) {
+      throw new UnprocessableEntityException();
     }
 
     try {
-      await this.jwtService.verifyAsync(refreshToken, {
+      await this.jwtService.verifyAsync(tokens['refreshToken'], {
         secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
       });
+
+      const newAccesstoken = await this.authService.refresh(tokens);
+
+      if (!newAccesstoken) {
+        throw new UnauthorizedException();
+      }
 
       const token = await this.authService.generateAccessToken({
         refreshToken,
       });
 
-      request['body']['accessToken'] = token;
+      request['body']['accessToken'] = newAccesstoken;
 
       return true;
     } catch (error) {
-      switch (error?.name) {
-        case 'TokenExpiredError':
-          throw new UnauthorizedException(error);
-        default: {
-          const response = context.switchToHttp().getResponse();
-          await this.reLogin(response);
-          return false;
-        }
+      const errorName = error?.name;
+
+      if (
+        errorName === 'TokenExpiredError' ||
+        errorName === 'JsonWebTokenError' ||
+        errorName === 'UnauthorizedException'
+      ) {
+        const response = context.switchToHttp().getResponse();
+
+        await this.reLogin(response);
+      } else {
+        throw new InternalServerErrorException(error.name);
       }
     }
   }
@@ -56,10 +67,18 @@ export class RefreshGuard implements CanActivate {
     response.redirect(loginUrl);
   }
 
-  private extractTokenFromBody(request: Request): string | undefined {
-    // const [type, token] = request.headers.authorization?.split(' ') ?? [];;
-    const refreshToken = request.body['refreshToken'];
+  private extractTokenFromBody(request: Request): object | undefined {
+    try {
+      const [accessTokenType, accessToken] =
+        request.headers.authorization.split(' ') ?? [];
+      const [refreshTokenType, refreshToken] =
+        request.body['refreshToken'].split(' ') ?? [];
 
-    return refreshToken ? refreshToken : undefined;
+      return refreshTokenType === 'Bearer' || accessTokenType === 'Bearer'
+        ? { accessToken, refreshToken }
+        : undefined;
+    } catch (error) {
+      throw new UnprocessableEntityException(error.name);
+    }
   }
 }

@@ -6,15 +6,14 @@ import {
   Request,
   Body,
   Post,
+  HttpCode,
 } from '@nestjs/common';
-import { AuthGuard as pAauthGuard } from '@nestjs/passport';
+import { AuthGuard } from '@nestjs/passport';
 import { AccessGuard } from '../guard/access.guard';
 import { RefreshGuard } from 'src/guard/refresh.guard';
-import { GOauthService } from './g-oauth/g-oauth.service';
-import { UserService } from 'src/user/user.service';
 import { AuthService } from './auth.service';
-import { UserInfo } from './entity/userInfo.entity';
 import { config } from 'dotenv';
+import { responseFormat, OK, Created } from '../util/responseFormat';
 
 config();
 
@@ -22,22 +21,25 @@ config();
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @Get('google')
-  @UseGuards(pAauthGuard('google'))
-  async googleAuth() {}
+  constructor(private readonly authService: AuthService) {}
+
+  @Get()
+  @UseGuards(AuthGuard('google'))
+  googleAuth(@Req() req) {}
 
   @Get(process.env.CALLBACK_PATH)
-  @UseGuards(pAauthGuard('google'))
+  @UseGuards(AuthGuard('google'))
   async googleAuthRedirect(@Req() req) {
-    const result = await this.authService.signByGOuth(req);
-    return result;
+    const data = await this.authService.signByGOuth(req);
+    return responseFormat(OK, data);
   }
 
+  @HttpCode(201)
   @UseGuards(RefreshGuard)
   @Post('refresh')
   async refresh(@Request() req) {
-    const { accessToken } = req.body;
+    const accessToken = req.body.accessToken;
 
-    return accessToken;
+    return responseFormat(Created, { accessToken });
   }
 }
