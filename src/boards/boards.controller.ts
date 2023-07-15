@@ -12,7 +12,7 @@ import {
 import { Board } from '@prisma/client';
 import { BoardsService } from './boards.service';
 import { CreateBoardDto } from './dto/create-board.dto';
-import { RefreshGuard } from 'src/guard/refresh.guard';
+import { AccessGuard } from 'src/guard/access.guard';
 
 @Controller('boards')
 export class BoardsController {
@@ -31,12 +31,14 @@ export class BoardsController {
   }
 
   // 게시물 생성
-  @UseGuards(RefreshGuard)
+  @UseGuards(AccessGuard)
   @Post()
   createBoard(
     @Body() createPostDto: CreateBoardDto,
     @Request() req,
   ): Promise<Board> {
+    console.log(req);
+
     return this.postsService.createBoard(createPostDto);
   }
 

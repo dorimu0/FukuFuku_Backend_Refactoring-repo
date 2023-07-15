@@ -38,6 +38,6 @@ export class AuthController {
   async refresh(@Request() req) {
     const { accessToken } = req.body;
 
-    return { accessToken };
+    return accessToken;
   }
 }
