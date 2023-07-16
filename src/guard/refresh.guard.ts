@@ -21,6 +21,13 @@ export class RefreshGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
+    console.log(
+      request.body,
+      'request.body',
+      request.headers,
+      'request.headers',
+    );
+
     const tokens = this.extractTokenFromBody(request);
 
     if (!tokens['refreshToken'] || !tokens['accessToken']) {
@@ -37,10 +44,6 @@ export class RefreshGuard implements CanActivate {
       if (!newAccesstoken) {
         throw new UnauthorizedException();
       }
-
-      const token = await this.authService.generateAccessToken({
-        refreshToken,
-      });
 
       request['body']['accessToken'] = newAccesstoken;
 

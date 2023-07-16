@@ -27,11 +27,15 @@ model Userimage {
 }
 
 model Board {
-  id      Int    @unique @default(autoincrement())
-  title   String @db.VarChar(20)
-  content String @db.Text
-  like    Int?   @default(0)
-  views   Int?   @default(0)
+  id        Int       @unique @default(autoincrement())
+  title     String    @db.VarChar(20)
+  content   String    @db.Text
+  like      Int?      @default(0)
+  views     Int?      @default(0)
+  createdAt DateTime  @default(now()) @map("created_at")
+  comment   Comment[]
+
+  @@id([id])
 }
 
 model Postimage {
@@ -42,22 +46,23 @@ model Postimage {
 
 model Comment {
   id        Int     @unique @default(autoincrement())
-  p_id      Int
   commenter String  @db.VarChar(10)
-  comment   String  @db.VarChar(100)
+  content   String  @db.VarChar(100)
   like      Int?    @default(0)
   reply     Reply[]
+  Board     Board?  @relation(fields: [boardId], references: [id])
+  boardId   Int?
 
-  @@id([id, p_id])
+  @@id([id])
 }
 
 model Reply {
-  id      Int     @unique @default(autoincrement())
-  c_id    Int
-  replyer String  @db.VarChar(10)
-  reply   String  @db.VarChar(100)
-  like    Int?    @default(0)
-  comment Comment @relation(fields: [c_id], references: [id], onDelete: NoAction)
+  id        Int     @unique @default(autoincrement())
+  c_id      Int
+  commenter String  @db.VarChar(10)
+  content   String  @db.VarChar(100)
+  like      Int?    @default(0)
+  comment   Comment @relation(fields: [c_id], references: [id], onDelete: NoAction)
 
   @@id([id, c_id])
 }

@@ -31,14 +31,12 @@ export class BoardsController {
   }
 
   // 게시물 생성
-  @UseGuards(AccessGuard)
+  // @UseGuards(AccessGuard)
   @Post()
   createBoard(
     @Body() createPostDto: CreateBoardDto,
-    @Request() req,
+    // @Request() req,
   ): Promise<Board> {
-    console.log(req);
-
     return this.postsService.createBoard(createPostDto);
   }
 

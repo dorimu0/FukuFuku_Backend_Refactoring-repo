@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
 import { Board } from '@prisma/client';
 import { CreateBoardDto } from './dto/create-board.dto';
@@ -33,7 +33,7 @@ export class BoardRepository {
     });
 
     if (!find) {
-      throw new Error('게시물이 존재하지 않습니다.');
+      throw new NotFoundException(`Can't find Board with id ${id}`);
     }
 
     return find;
