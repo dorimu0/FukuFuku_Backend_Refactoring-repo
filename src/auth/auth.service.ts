@@ -34,7 +34,8 @@ export class AuthService {
     try {
       const emailFromAccessToken = await this.jwtService.decode(tokens.accessToken);
       const emailFromRefreshToken = await this.jwtService.decode(tokens.refreshToken);
-
+      
+      // access token, refresh token의 발행 정보를 대조
       if (emailFromAccessToken === null || emailFromRefreshToken === null) {
         return false;
       }
@@ -42,7 +43,7 @@ export class AuthService {
         return false;
       }
 
-      const userInfo = await this.userService.user(emailFromRefreshToken['email']);
+      const userInfo = await this.userService.findUser(emailFromRefreshToken['email']);
   
       const newAccesstoken = await this.generateToken(userInfo, 'JWT_ACCESS_SECRET', 'JWT_ACCESS_EXPRIESIN');
       
