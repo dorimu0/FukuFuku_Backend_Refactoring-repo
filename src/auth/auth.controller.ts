@@ -1,10 +1,10 @@
 import { Controller, Get, Req, UseGuards, Request, Body, Post, HttpCode } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { AccessGuard } from '../guard/access.guard';
-import { RefreshGuard } from 'src/guard/refresh.guard';
+import { AccessGuard } from '../common/guard/access.guard';
+import { RefreshGuard } from 'src/common/guard/refresh.guard';
 import { AuthService } from './auth.service';
 import { config } from 'dotenv';
-import { responseFormat, OK, Created } from '../util/responseFormat';
+import { responseFormat, OK, Created } from '../common/util/responseFormat';
 
 config();
 
