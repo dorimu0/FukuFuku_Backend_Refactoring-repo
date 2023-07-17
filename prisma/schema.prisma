@@ -8,15 +8,16 @@ datasource db {
 }
 
 model User {
-  id        Int         @id @default(autoincrement())
-  email     String      @unique @db.VarChar(40)
-  picture   String      @db.VarChar(100)
-  firstName String      @db.VarChar(10)
-  lastName  String      @db.VarChar(15)
-  isAdmin   Int?
-  nickName  String?     @db.VarChar(10)
-  post      Post[]
-  like      Like[]
+  id           Int     @id @default(autoincrement())
+  email        String  @unique @db.VarChar(40)
+  picture      String  @db.VarChar(100)
+  firstName    String  @db.VarChar(10)
+  lastName     String  @db.VarChar(15)
+  isAdmin      Int?
+  nickName     String? @unique @db.VarChar(10)
+  introduction String? @db.VarChar(50)
+  post         Post[]
+  like         Like[]
 }
 
 model Post {
