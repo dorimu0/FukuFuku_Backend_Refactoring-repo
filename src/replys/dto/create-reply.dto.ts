@@ -9,4 +9,10 @@ export class CreateReplyDto {
 
   @IsNotEmpty()
   commenter: string;
+
+  @IsNotEmpty()
+  img: string;
+
+  @IsNotEmpty()
+  u_id: number;
 }

@@ -18,16 +18,25 @@ export class ReplyRepository {
 
   // 답글 생성
   async createReply(createReplyDto: CreateReplyDto): Promise<Reply> {
-    const { content, c_id, commenter } = createReplyDto;
+    const { content, c_id, commenter, img, u_id } = createReplyDto;
 
     const reply = await this.prismaService.reply.create({
       data: {
         content,
         c_id,
         commenter,
+        img,
+        u_id,
       },
     });
 
     return reply;
+  }
+
+  // 답글 삭제
+  async deleteReply(id: number): Promise<Reply> {
+    return this.prismaService.reply.delete({
+      where: { id },
+    });
   }
 }

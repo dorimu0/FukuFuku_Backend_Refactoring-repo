@@ -16,16 +16,25 @@ export class CommentRepository {
 
   // 댓글 생성
   async createComment(createCommentDto: CreateCommentDto): Promise<Comment> {
-    const { content, boardId, commenter } = createCommentDto;
+    const { content, boardId, commenter, img, u_id } = createCommentDto;
 
     const comment = await this.prismaService.comment.create({
       data: {
         content,
         boardId,
         commenter,
+        img,
+        u_id,
       },
     });
 
     return comment;
+  }
+
+  // 댓글 삭제
+  async deleteComment(id: number): Promise<Comment> {
+    return this.prismaService.comment.delete({
+      where: { id },
+    });
   }
 }

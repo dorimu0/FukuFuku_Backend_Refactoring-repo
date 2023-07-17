@@ -1,8 +1,0 @@
--- AlterTable
-ALTER TABLE `Board` ADD COLUMN `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3);
-
--- AlterTable
-ALTER TABLE `Comment` ADD COLUMN `boardId` INTEGER NULL;
-
--- AddForeignKey
-ALTER TABLE `Comment` ADD CONSTRAINT `Comment_boardId_fkey` FOREIGN KEY (`boardId`) REFERENCES `Board`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;

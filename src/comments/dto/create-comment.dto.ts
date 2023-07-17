@@ -9,4 +9,10 @@ export class CreateCommentDto {
 
   @IsNotEmpty()
   commenter: string;
+
+  @IsNotEmpty()
+  img: string;
+
+  @IsNotEmpty()
+  u_id: number;
 }

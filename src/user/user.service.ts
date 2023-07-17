@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { UserRepository } from './user.repository';
 import { CreateUserDto } from './dto/create-user.dto';
+import { User } from '@prisma/client';
 
 @Injectable()
 export class UserService {
@@ -29,5 +30,9 @@ export class UserService {
     userInfo = await this.user(userDto.email);
 
     return userInfo;
+  }
+
+  async getUserById(id: number): Promise<User> {
+    return this.userRepository.getUserById(id);
   }
 }

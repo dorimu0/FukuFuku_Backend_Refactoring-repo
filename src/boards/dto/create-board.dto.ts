@@ -6,4 +6,7 @@ export class CreateBoardDto {
 
   @IsNotEmpty()
   content: string;
+
+  @IsNotEmpty()
+  u_id: number;
 }

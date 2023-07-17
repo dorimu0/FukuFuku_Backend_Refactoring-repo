@@ -12,13 +12,7 @@ export class BoardsService {
   }
 
   async getBoardById(id: number): Promise<Board> {
-    const found = await this.postRepository.getBoardById(id);
-
-    if (!found) {
-      throw new Error(`Can't find board with id ${id}`);
-    }
-
-    return found;
+    return this.postRepository.getBoardById(id);
   }
 
   createBoard(createPostDto: CreateBoardDto): Promise<Board> {

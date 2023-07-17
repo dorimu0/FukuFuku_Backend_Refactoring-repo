@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   ParseIntPipe,
@@ -26,5 +27,11 @@ export class ReplysController {
   @Post()
   async createReply(@Body() createReplyDto: CreateReplyDto): Promise<Reply> {
     return this.replyService.createReply(createReplyDto);
+  }
+
+  // 답글 삭제
+  @Delete('/:id')
+  async deleteReply(@Param('id', ParseIntPipe) id: number): Promise<Reply> {
+    return this.replyService.deleteReply(id);
   }
 }

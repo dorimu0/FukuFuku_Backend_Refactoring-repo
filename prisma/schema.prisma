@@ -17,6 +17,9 @@ model User {
   refreshToken String?     @unique @db.VarChar(250)
   nickName     String?     @db.VarChar(10)
   userimage    Userimage[]
+  board Board[]
+  comment Comment[]
+  reply Reply[]
 }
 
 model Userimage {
@@ -34,6 +37,8 @@ model Board {
   views     Int?      @default(0)
   createdAt DateTime  @default(now()) @map("created_at")
   comment   Comment[]
+  u_id Int 
+  user User @relation(fields: [u_id], references: [id])
 
   @@id([id])
 }
@@ -48,21 +53,27 @@ model Comment {
   id        Int     @unique @default(autoincrement())
   commenter String  @db.VarChar(10)
   content   String  @db.VarChar(100)
+  img       String
   like      Int?    @default(0)
-  reply     Reply[]
+  reply     Reply[] @relation(onDelete: CASCADE)
   Board     Board?  @relation(fields: [boardId], references: [id])
   boardId   Int?
+  u_id      Int
+  user      User    @relation(fields: [u_id], references: [id])
 
   @@id([id])
 }
 
 model Reply {
   id        Int     @unique @default(autoincrement())
-  c_id      Int
   commenter String  @db.VarChar(10)
+  img String
   content   String  @db.VarChar(100)
   like      Int?    @default(0)
-  comment   Comment @relation(fields: [c_id], references: [id], onDelete: NoAction)
+  c_id      Int
+  comment   Comment @relation(fields: [c_id], references: [id])
+  u_id      Int
+  user      User    @relation(fields: [u_id], references: [id])
 
   @@id([id, c_id])
 }

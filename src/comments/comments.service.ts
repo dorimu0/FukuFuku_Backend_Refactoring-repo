@@ -16,4 +16,9 @@ export class CommentsService {
   async createComment(createCommentDto: CreateCommentDto): Promise<Comment> {
     return this.commentRepository.createComment(createCommentDto);
   }
+
+  // 댓글 삭제
+  async deleteComment(id: number): Promise<Comment> {
+    return this.commentRepository.deleteComment(id);
+  }
 }

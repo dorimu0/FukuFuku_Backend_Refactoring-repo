@@ -16,4 +16,9 @@ export class ReplysService {
   async createReply(createReplyDto: CreateReplyDto): Promise<Reply> {
     return this.replyRepository.createReply(createReplyDto);
   }
+
+  // 답글 삭제
+  async deleteReply(id: number): Promise<Reply> {
+    return this.replyRepository.deleteReply(id);
+  }
 }
