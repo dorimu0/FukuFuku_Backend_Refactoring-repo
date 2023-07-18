@@ -39,4 +39,12 @@ export class ReplyRepository {
       where: { id },
     });
   }
+
+  // 답글 수정
+  async updateReply(id: number, content: string): Promise<Reply> {
+    return this.prismaService.reply.update({
+      where: { id },
+      data: { content },
+    });
+  }
 }

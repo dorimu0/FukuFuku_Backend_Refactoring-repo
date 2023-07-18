@@ -6,22 +6,21 @@ CREATE TABLE `User` (
     `firstName` VARCHAR(10) NOT NULL,
     `lastName` VARCHAR(15) NOT NULL,
     `isAdmin` INTEGER NULL,
-    `refreshToken` VARCHAR(250) NULL,
     `nickName` VARCHAR(10) NULL,
+    `introduction` VARCHAR(50) NULL,
 
     UNIQUE INDEX `User_email_key`(`email`),
-    UNIQUE INDEX `User_refreshToken_key`(`refreshToken`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
-CREATE TABLE `Userimage` (
+CREATE TABLE `Like` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `b_id` INTEGER NOT NULL,
     `u_id` INTEGER NOT NULL,
-    `url` VARCHAR(50) NULL,
 
-    UNIQUE INDEX `Userimage_u_id_key`(`u_id`),
-    PRIMARY KEY (`id`)
+    UNIQUE INDEX `Like_id_key`(`id`),
+    PRIMARY KEY (`id`, `b_id`, `u_id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
@@ -29,7 +28,6 @@ CREATE TABLE `Board` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `title` VARCHAR(20) NOT NULL,
     `content` TEXT NOT NULL,
-    `like` INTEGER NULL DEFAULT 0,
     `views` INTEGER NULL DEFAULT 0,
     `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `u_id` INTEGER NOT NULL,
@@ -76,7 +74,10 @@ CREATE TABLE `Reply` (
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- AddForeignKey
-ALTER TABLE `Userimage` ADD CONSTRAINT `Userimage_u_id_fkey` FOREIGN KEY (`u_id`) REFERENCES `User`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `Like` ADD CONSTRAINT `Like_b_id_fkey` FOREIGN KEY (`b_id`) REFERENCES `Board`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `Like` ADD CONSTRAINT `Like_u_id_fkey` FOREIGN KEY (`u_id`) REFERENCES `User`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `Board` ADD CONSTRAINT `Board_u_id_fkey` FOREIGN KEY (`u_id`) REFERENCES `User`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;

@@ -26,4 +26,8 @@ export class BoardsService {
   deleteBoard(id: number): Promise<Board> {
     return this.postRepository.deleteBoard(id);
   }
+
+  updateBoard(id: number, content: string): Promise<Board> {
+    return this.postRepository.updateBoard(id, content);
+  }
 }

@@ -9,6 +9,7 @@ import {
   Req,
   UseInterceptors,
   Headers,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import {
@@ -21,6 +22,7 @@ import { responseFormat, OK, NoContent } from '../common/util/responseFormat';
 import { UserDeleteWhereDto } from './dto/delete-user.dto';
 import { S3Interceptor } from '../common/util/upload.interceptor';
 import { S3Client } from '@aws-sdk/client-s3';
+import { User } from '@prisma/client';
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
@@ -69,5 +71,10 @@ export class UserController {
     const result = await this.userService.editPicture(userData, req);
 
     return responseFormat(OK, result);
+  }
+
+  @Get('/:id')
+  getUserById(@Param('id', ParseIntPipe) id: number): Promise<User> {
+    return this.userService.getUserById(id);
   }
 }

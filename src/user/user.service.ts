@@ -15,19 +15,13 @@ import {
 import { UserDeleteWhereDto } from './dto/delete-user.dto';
 import { deleteObject } from '../common/util/deleteObjectFromS3';
 import { S3Client } from '@aws-sdk/client-s3';
+import { User } from '@prisma/client';
+
 @Injectable()
 export class UserService {
   constructor(private readonly userRepository: UserRepository) {}
 
-  findUser(
-    uniqueValue:
-      | {
-          email: string;
-        }
-      | {
-          nickName: string;
-        },
-  ) {
+  findUser(uniqueValue: { email?: string; nickName?: string } = {}) {
     return this.userRepository.findOne(uniqueValue);
   }
 
@@ -132,5 +126,9 @@ export class UserService {
     const userInfo = await this.userRepository.updateUser(updateUserPictureDto);
 
     return { picture: userInfo.picture };
+  }
+
+  async getUserById(id: number): Promise<User> {
+    return this.userRepository.getUserById(id);
   }
 }

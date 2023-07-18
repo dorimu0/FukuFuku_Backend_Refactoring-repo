@@ -5,6 +5,7 @@ import {
   Get,
   Param,
   ParseIntPipe,
+  Patch,
   Post,
 } from '@nestjs/common';
 import { Board } from '@prisma/client';
@@ -46,5 +47,16 @@ export class BoardsController {
   @Delete('/:id')
   deleteBoard(@Param('id', ParseIntPipe) id: number): Promise<Board> {
     return this.postsService.deleteBoard(id);
+  }
+
+  // 글 내용 수정
+  @Patch('/:id')
+  updateBoard(
+    @Param('id', ParseIntPipe) id: number,
+    @Body('content') content: string,
+  ): Promise<Board> {
+    console.log(id, content);
+
+    return this.postsService.updateBoard(id, content);
   }
 }

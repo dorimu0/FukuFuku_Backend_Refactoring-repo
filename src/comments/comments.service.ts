@@ -21,4 +21,9 @@ export class CommentsService {
   async deleteComment(id: number): Promise<Comment> {
     return this.commentRepository.deleteComment(id);
   }
+
+  // 댓글 수정
+  async updateComment(id: number, content: string): Promise<Comment> {
+    return this.commentRepository.updateComment(id, content);
+  }
 }

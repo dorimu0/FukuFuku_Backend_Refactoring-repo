@@ -55,4 +55,12 @@ export class BoardRepository {
       where: { id },
     });
   }
+
+  // 게시물 수정
+  async updateBoard(id: number, content: string): Promise<Board> {
+    return this.prismaService.board.update({
+      where: { id },
+      data: { content },
+    });
+  }
 }
