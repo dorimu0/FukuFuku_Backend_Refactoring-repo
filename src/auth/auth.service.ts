@@ -1,6 +1,5 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { UserService } from '../user/user.service';
-import { UserInfo } from './entity/userInfo.entity';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { GOauthService } from './g-oauth/g-oauth.service';
@@ -32,8 +31,8 @@ export class AuthService {
 
   async refresh(tokens) {
     try {
-      const emailFromAccessToken = await this.jwtService.decode(tokens.accessToken);
-      const emailFromRefreshToken = await this.jwtService.decode(tokens.refreshToken);
+      const emailFromAccessToken = this.jwtService.decode(tokens.accessToken);
+      const emailFromRefreshToken = this.jwtService.decode(tokens.refreshToken);
       
       // access token, refresh token의 발행 정보를 대조
       if (emailFromAccessToken === null || emailFromRefreshToken === null) {
