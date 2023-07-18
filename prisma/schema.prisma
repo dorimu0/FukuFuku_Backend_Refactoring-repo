@@ -8,69 +8,72 @@ datasource db {
 }
 
 model User {
-  id           Int     @id @default(autoincrement())
-  email        String  @unique @db.VarChar(40)
-  picture      String  @db.VarChar(100)
-  firstName    String  @db.VarChar(10)
-  lastName     String  @db.VarChar(15)
+  id           Int         @id @default(autoincrement())
+  email        String      @unique @db.VarChar(40)
+  picture      String      @db.VarChar(100)
+  firstName    String      @db.VarChar(10)
+  lastName     String      @db.VarChar(15)
   isAdmin      Int?
-  nickName     String? @unique @db.VarChar(10)
-  introduction String? @db.VarChar(50)
-  post         Post[]
-  like         Like[]
+  refreshToken String?     @unique @db.VarChar(250)
+  nickName     String?     @db.VarChar(10)
+  userimage    Userimage[]
+  board        Board[]
+  comment      Comment[]
+  reply        Reply[]
 }
 
-model Post {
-  id        Int         @unique @default(autoincrement())
-  u_id      Int
-  title     String      @db.VarChar(20)
-  content   String      @db.Text
-  views     Int?        @default(0)
-  writeDate DateTime    @db.Date
+model Userimage {
+  id   Int     @id @default(autoincrement())
+  u_id Int     @unique
+  url  String? @db.VarChar(50)
+  user User    @relation(fields: [u_id], references: [id], onDelete: Cascade)
+}
+
+model Board {
+  id        Int       @unique @default(autoincrement())
+  title     String    @db.VarChar(20)
+  content   String    @db.Text
+  like      Int?      @default(0)
+  views     Int?      @default(0)
+  createdAt DateTime  @default(now()) @map("created_at")
   comment   Comment[]
-  user      User        @relation(fields: [u_id], references: [id], onDelete: NoAction)
-  postimage Postimage[]
-  like      Like[]
+  u_id      Int
+  user      User      @relation(fields: [u_id], references: [id])
 
-  @@id([id, u_id])
-}
-
-model Like {
-  id   Int  @unique @default(autoincrement())
-  p_id Int
-  u_id Int
-  post Post @relation(fields: [p_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  user User @relation(fields: [u_id], references: [id], onDelete: Cascade)
-
-  @@id([id, p_id, u_id])
+  @@id([id])
 }
 
 model Postimage {
   id   Int     @id @default(autoincrement())
   p_id Int
   url  String? @db.VarChar(50)
-  post Post    @relation(fields: [p_id], references: [id], onDelete: Cascade)
 }
 
 model Comment {
   id        Int     @unique @default(autoincrement())
-  p_id      Int
   commenter String  @db.VarChar(10)
-  comment   String  @db.VarChar(100)
+  content   String  @db.VarChar(100)
+  img       String
   like      Int?    @default(0)
-  post      Post    @relation(fields: [p_id], references: [id], onDelete: Cascade)
   reply     Reply[]
+  Board     Board?  @relation(fields: [boardId], references: [id])
+  boardId   Int?
+  u_id      Int
+  user      User    @relation(fields: [u_id], references: [id])
 
-  @@id([id, p_id])
+  @@id([id])
 }
 
 model Reply {
-  id      Int     @unique @default(autoincrement())
-  c_id    Int
-  replyer String  @db.VarChar(10)
-  reply   String  @db.VarChar(100)
-  like    Int?    @default(0)
-  comment Comment @relation(fields: [c_id], references: [id], onDelete: NoAction)
+  id        Int     @unique @default(autoincrement())
+  commenter String  @db.VarChar(10)
+  img       String
+  content   String  @db.VarChar(100)
+  like      Int?    @default(0)
+  c_id      Int
+  comment   Comment @relation(fields: [c_id], references: [id])
+  u_id      Int
+  user      User    @relation(fields: [u_id], references: [id])
 
   @@id([id, c_id])
 }

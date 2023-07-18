@@ -1,7 +1,7 @@
 export class UserInfo {
-  email?: string
-  picture?: string
-  firstName?: string
-  lastName?: string
-  refreshToken?: string
+  email?: string;
+  picture?: string;
+  firstName?: string;
+  lastName?: string;
+  refreshToken?: string;
 }
