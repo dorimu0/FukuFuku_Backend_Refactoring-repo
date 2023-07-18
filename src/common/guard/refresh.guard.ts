@@ -4,7 +4,7 @@ import {
   Injectable,
   UnauthorizedException,
   UnprocessableEntityException,
-  InternalServerErrorException
+  InternalServerErrorException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Request, Response } from 'express';
@@ -12,8 +12,8 @@ import { AuthService } from '../../auth/auth.service';
 import { ConfigService } from '@nestjs/config';
 
 interface Tokens {
-  accessToken: string,
-  refreshToken: string
+  accessToken: string;
+  refreshToken: string;
 }
 
 @Injectable()
@@ -22,7 +22,7 @@ export class RefreshGuard implements CanActivate {
     private readonly jwtService: JwtService,
     private readonly authService: AuthService,
     private readonly configService: ConfigService,
-  ) { }
+  ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
@@ -34,16 +34,13 @@ export class RefreshGuard implements CanActivate {
     }
 
     try {
-      await this.jwtService.verifyAsync(
-        tokens.refreshToken,
-        {
-          secret: this.configService.get<string>('JWT_REFRESH_SECRET')
-        }
-      );
+      await this.jwtService.verifyAsync(tokens.refreshToken, {
+        secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
+      });
 
       // access token 재발급
       const newAccesstoken = await this.authService.refresh(tokens);
- 
+
       if (!newAccesstoken) {
         throw new UnauthorizedException();
       }
@@ -54,15 +51,15 @@ export class RefreshGuard implements CanActivate {
     } catch (error) {
       const errorName = error?.name;
 
-      if (errorName === 'TokenExpiredError'
-        || errorName === 'JsonWebTokenError'
-        || errorName === 'UnauthorizedException') {
-
+      if (
+        errorName === 'TokenExpiredError' ||
+        errorName === 'JsonWebTokenError' ||
+        errorName === 'UnauthorizedException'
+      ) {
         const response = context.switchToHttp().getResponse();
 
         await this.reLogin(response);
-      }
-      else {
+      } else {
         throw new InternalServerErrorException(error);
       }
     }
@@ -76,19 +73,20 @@ export class RefreshGuard implements CanActivate {
 
   // 토큰 추출
   private extractTokens(request: Request): Tokens | undefined {
-
-    const [accessTokenType, accessToken] = request.headers?.authorization?.split(' ') ?? [];
-    const [refreshTokenType, refreshToken] = request.body?.refreshToken?.split(' ') ?? [];
+    const [accessTokenType, accessToken] =
+      request.headers?.authorization?.split(' ') ?? [];
+    const [refreshTokenType, refreshToken] =
+      request.body?.refreshToken?.split(' ') ?? [];
 
     const tokens: Tokens = { accessToken, refreshToken };
-    
-    const isRightType = refreshTokenType === 'Bearer' && accessTokenType === 'Bearer';
+
+    const isRightType =
+      refreshTokenType === 'Bearer' && accessTokenType === 'Bearer';
     const isToken = tokens?.accessToken && tokens?.refreshToken;
 
     if (isRightType && isToken) {
       return tokens;
-    }
-    else {
+    } else {
       return undefined;
     }
   }

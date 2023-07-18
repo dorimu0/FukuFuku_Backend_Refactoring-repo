@@ -4,7 +4,7 @@ import {
   Injectable,
   GoneException,
   Res,
-  UnprocessableEntityException
+  UnprocessableEntityException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Request, Response } from 'express';
@@ -15,7 +15,7 @@ export class AccessGuard implements CanActivate {
   constructor(
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
-  ) { }
+  ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
@@ -24,22 +24,18 @@ export class AccessGuard implements CanActivate {
       throw new UnprocessableEntityException();
     }
     try {
-      await this.jwtService.verifyAsync(
-        token,
-        {
-          secret: this.configService.get<string>('JWT_ACCESS_SECRET')
-        }
-      );
-      
+      await this.jwtService.verifyAsync(token, {
+        secret: this.configService.get<string>('JWT_ACCESS_SECRET'),
+      });
+
       const email = this.jwtService.decode(token);
-      
+
       request['body']['acessToken'] = token;
       request['body']['email'] = email;
-
     } catch (error) {
-
       switch (error?.name) {
-        case 'TokenExpiredError': throw new GoneException(error);
+        case 'TokenExpiredError':
+          throw new GoneException(error);
         // 만료된 경우가 아닐 시에 로그인 redirect
         default: {
           const response = context.switchToHttp().getResponse();

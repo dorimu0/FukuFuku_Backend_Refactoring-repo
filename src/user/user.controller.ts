@@ -1,17 +1,31 @@
-import { Controller, Get, Body, Param, Put, Patch, Delete, Req, UseInterceptors, Headers, HttpCode, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Body,
+  Param,
+  Put,
+  Patch,
+  Delete,
+  Req,
+  UseInterceptors,
+  Headers,
+  ParseIntPipe,
+} from '@nestjs/common';
 import { UserService } from './user.service';
-import { UpdateUserIntroductionDto, UpdateUserNicknameDto, UpdateCommonWhere as UpdateUserDto } from './dto/update-user.dto';
+import {
+  UpdateUserIntroductionDto,
+  UpdateUserNicknameDto,
+  UpdateCommonWhere as UpdateUserDto,
+} from './dto/update-user.dto';
 import { IsAuthenticable } from 'src/common/decorators/authentic.decorator';
-import { responseFormat, OK, NoContent } from '../common/util/responseFormat'
+import { responseFormat, OK, NoContent } from '../common/util/responseFormat';
 import { UserDeleteWhereDto } from './dto/delete-user.dto';
 import { fileInterceptor } from '../common/util/upload.interceptor';
 import { AccessGuard } from 'src/common/guard/access.guard';
 
 @Controller('user')
 export class UserController {
-  constructor(
-    private readonly userService: UserService,
-  ) { }
+  constructor(private readonly userService: UserService) {}
 
   // 닉네임 중복 체크
   @UseGuards(AccessGuard)
@@ -57,5 +71,10 @@ export class UserController {
     const result = await this.userService.editPicture(userData, req);
 
     return responseFormat(OK, result);
+  }
+
+  @Get('/:id')
+  getUserById(@Param('id', ParseIntPipe) id: number): Promise<User> {
+    return this.userService.getUserById(id);
   }
 }

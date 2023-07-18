@@ -2,8 +2,5 @@ import { applyDecorators } from '@nestjs/common';
 import { IsNotEmpty, IsString } from 'class-validator';
 
 export function IsNotEmptyString() {
-  return applyDecorators(
-    IsNotEmpty(),
-    IsString()
-  );
+  return applyDecorators(IsNotEmpty(), IsString());
 }

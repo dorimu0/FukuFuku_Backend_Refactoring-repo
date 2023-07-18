@@ -1,7 +1,11 @@
 import { ConflictException, Injectable, UnprocessableEntityException, UnsupportedMediaTypeException } from '@nestjs/common';
 import { UserRepository } from './user.repository';
 import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserIntroductionDto, UpdateUserNicknameDto, UpdateCommonWhere as UpdateUserDto } from './dto/update-user.dto';
+import {
+  UpdateUserIntroductionDto,
+  UpdateUserNicknameDto,
+  UpdateCommonWhere as UpdateUserDto,
+} from './dto/update-user.dto';
 import { UserDeleteWhereDto } from './dto/delete-user.dto';
 import { deleteObject } from '../common/util/deleteObjectFromS3';
 
@@ -25,7 +29,6 @@ export class UserService {
 
   // refresh token 기간 끝 OR 가입
   async sign(userDto: CreateUserDto) {
-
     // 가입 여부 확인
     let userInfo = await this.userRepository.findOne({ email: userDto.email });
 
@@ -42,7 +45,7 @@ export class UserService {
   }
 
   // 닉네임 중복 체크
-  async nicknameDuplicateCheck(nickName: string, type: string = 'check') {
+  async nicknameDuplicateCheck(nickName: string, type = 'check') {
     const isExist = await this.findUser({ nickName });
 
     // 없는 경우
@@ -58,12 +61,16 @@ export class UserService {
     throw new ConflictException();
   }
 
-  // 닉네임 수정 
+  // 닉네임 수정
   async editNickname(updateUserNicknameDto: UpdateUserNicknameDto) {
-    const isNotExist = await this.nicknameDuplicateCheck(updateUserNicknameDto.data.nickName);
+    const isNotExist = await this.nicknameDuplicateCheck(
+      updateUserNicknameDto.data.nickName,
+    );
 
     if (isNotExist) {
-      const userInfo = await this.userRepository.updateUser(updateUserNicknameDto);
+      const userInfo = await this.userRepository.updateUser(
+        updateUserNicknameDto,
+      );
       return { nickName: userInfo.nickName };
     }
 
@@ -72,13 +79,17 @@ export class UserService {
 
   // 자기 소개 수정
   async editIntroduction(updateUserIntroductionDto: UpdateUserIntroductionDto) {
-    const userInfo = await this.userRepository.updateUser(updateUserIntroductionDto);
+    const userInfo = await this.userRepository.updateUser(
+      updateUserIntroductionDto,
+    );
     return { introduction: userInfo.introduction };
   }
 
   // 회원 탈퇴
   async withdraw(userInfo: UserDeleteWhereDto) {
-    const result = await this.userRepository.deleteUser({ email: userInfo.where.email });
+    const result = await this.userRepository.deleteUser({
+      email: userInfo.where.email,
+    });
     return result;
   }
 
@@ -96,7 +107,7 @@ export class UserService {
     // 이미지 저장 후 url 가져오기
     const picture = req?.files[0].location;
     const email = updateUserDto;
-    const updateUserPictureDto = { where: { email }, data: { picture } }
+    const updateUserPictureDto = { where: { email }, data: { picture } };
 
     // 기존 S3 이미지 삭제
     const previousUserInfo = await this.userRepository.findOne({ email });
@@ -112,4 +123,5 @@ export class UserService {
 
     return { picture: userInfo.picture };
   }
+
 }

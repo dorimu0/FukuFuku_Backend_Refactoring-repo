@@ -6,7 +6,6 @@ config();
 
 @Injectable()
 export class GOuthStrategy extends PassportStrategy(Strategy, 'google') {
-
   constructor() {
     super({
       clientID: process.env.CLIENT_ID,
@@ -22,15 +21,15 @@ export class GOuthStrategy extends PassportStrategy(Strategy, 'google') {
     accessToken: string,
     refreshToken: string,
     profile: any,
-    done: VerifyCallback):
-    Promise<any> {
-    const { name, emails, photos } = profile
+    done: VerifyCallback,
+  ): Promise<any> {
+    const { name, emails, photos } = profile;
     const user = {
       email: emails[0].value,
       firstName: name.familyName,
       lastName: name.givenName,
       picture: photos[0].value,
-    }
+    };
     done(null, user);
   }
 }
