@@ -50,6 +50,7 @@ export class AuthService {
         tokens.refreshToken,
       );
 
+      // access token, refresh token의 발행 정보를 대조
       if (emailFromAccessToken === null || emailFromRefreshToken === null) {
         return false;
       }
@@ -57,7 +58,7 @@ export class AuthService {
         return false;
       }
 
-      const userInfo = await this.userService.user(
+      const userInfo = await this.userService.findUser(
         emailFromRefreshToken['email'],
       );
 

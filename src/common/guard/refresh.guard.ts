@@ -8,8 +8,13 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Request, Response } from 'express';
-import { AuthService } from '../auth/auth.service';
+import { AuthService } from '../../auth/auth.service';
 import { ConfigService } from '@nestjs/config';
+
+interface Tokens {
+  accessToken: string;
+  refreshToken: string;
+}
 
 @Injectable()
 export class RefreshGuard implements CanActivate {
@@ -21,24 +26,19 @@ export class RefreshGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
-    console.log(
-      request.body,
-      'request.body',
-      request.headers,
-      'request.headers',
-    );
+    const tokens = this.extractTokens(request);
 
-    const tokens = this.extractTokenFromBody(request);
-
-    if (!tokens['refreshToken'] || !tokens['accessToken']) {
+    // 토큰 없는 경우
+    if (!tokens) {
       throw new UnprocessableEntityException();
     }
 
     try {
-      await this.jwtService.verifyAsync(tokens['refreshToken'], {
+      await this.jwtService.verifyAsync(tokens.refreshToken, {
         secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
       });
 
+      // access token 재발급
       const newAccesstoken = await this.authService.refresh(tokens);
 
       if (!newAccesstoken) {
@@ -60,28 +60,34 @@ export class RefreshGuard implements CanActivate {
 
         await this.reLogin(response);
       } else {
-        throw new InternalServerErrorException(error.name);
+        throw new InternalServerErrorException(error);
       }
     }
   }
 
+  // 구글로그인 경로로 redirect
   async reLogin(response: Response) {
     const loginUrl = this.configService.get<string>('GOAUTH_RELOGIN_URL');
     response.redirect(loginUrl);
   }
 
-  private extractTokenFromBody(request: Request): object | undefined {
-    try {
-      const [accessTokenType, accessToken] =
-        request.headers.authorization.split(' ') ?? [];
-      const [refreshTokenType, refreshToken] =
-        request.body['refreshToken'].split(' ') ?? [];
+  // 토큰 추출
+  private extractTokens(request: Request): Tokens | undefined {
+    const [accessTokenType, accessToken] =
+      request.headers?.authorization?.split(' ') ?? [];
+    const [refreshTokenType, refreshToken] =
+      request.body?.refreshToken?.split(' ') ?? [];
 
-      return refreshTokenType === 'Bearer' || accessTokenType === 'Bearer'
-        ? { accessToken, refreshToken }
-        : undefined;
-    } catch (error) {
-      throw new UnprocessableEntityException(error.name);
+    const tokens: Tokens = { accessToken, refreshToken };
+
+    const isRightType =
+      refreshTokenType === 'Bearer' && accessTokenType === 'Bearer';
+    const isToken = tokens?.accessToken && tokens?.refreshToken;
+
+    if (isRightType && isToken) {
+      return tokens;
+    } else {
+      return undefined;
     }
   }
 }

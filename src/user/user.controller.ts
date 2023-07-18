@@ -1,16 +1,66 @@
-import { Controller, Get, Param, ParseIntPipe } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Body,
+  Param,
+  Put,
+  Patch,
+  Delete,
+  Req,
+  UseInterceptors,
+  Headers,
+} from '@nestjs/common';
 import { UserService } from './user.service';
-import { User } from '@prisma/client';
 
-@Controller('users')
+@Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  // @Post()
-  // async signIn(@Body() createUserDto: CreateUserDto) {
-  //   const userInfo = await this.userService.signIn(createUserDto);
-  //   return userInfo;
-  // }
+  // 닉네임 중복 체크
+  // @UseGuards(AccessGuard)
+  @Get('check/:nickName')
+  async isExistNickname(@Param('nickName') nickname: string) {
+    await this.userService.nicknameDuplicateCheck(nickname, 'request');
+    return responseFormat(OK);
+  }
+
+  // 닉네임 수정
+  @IsAuthenticable('author')
+  @Put('/editNickname')
+  async editNickname(@Body('data') data: UpdateUserNicknameDto) {
+    const result = await this.userService.editNickname(data);
+
+    // UX를 위한 데이터 response
+    return responseFormat(OK, result);
+  }
+
+  // 자기 소개 수정
+  @IsAuthenticable('author')
+  @Patch('/editIntroduction')
+  async editIntroduction(@Body('data') updateData: UpdateUserIntroductionDto) {
+    const result = await this.userService.editIntroduction(updateData);
+
+    return responseFormat(OK, result);
+  }
+
+  // 회원 탈퇴
+  @IsAuthenticable('author')
+  @Delete('/withdraw')
+  async withdraw(@Body('data') userData: UserDeleteWhereDto) {
+    await this.userService.withdraw(userData);
+
+    return responseFormat(NoContent);
+  }
+
+  // 이미지 수정
+  @IsAuthenticable('author')
+  @Put('editImage')
+  @UseInterceptors(S3Interceptor)
+  async editImage(@Req() req, @Headers('data') userData: UpdateUserDto) {
+    const result = await this.userService.editPicture(userData, req);
+
+    return responseFormat(OK, result);
+  }
 
   @Get('/:id')
   getUserById(@Param('id', ParseIntPipe) id: number): Promise<User> {

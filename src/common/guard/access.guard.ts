@@ -27,10 +27,16 @@ export class AccessGuard implements CanActivate {
       await this.jwtService.verifyAsync(token, {
         secret: this.configService.get<string>('JWT_ACCESS_SECRET'),
       });
+
+      const email = this.jwtService.decode(token);
+
+      request['body']['acessToken'] = token;
+      request['body']['email'] = email;
     } catch (error) {
       switch (error?.name) {
         case 'TokenExpiredError':
           throw new GoneException(error);
+        // 만료된 경우가 아닐 시에 로그인 redirect
         default: {
           const response = context.switchToHttp().getResponse();
           this.reLogin(response);

@@ -1,10 +1,7 @@
-import { IsNotEmpty, IsEmail, IsOptional } from 'class-validator';
-import IsNotEmptyString from '../../decorators/is-not-empty-string.decorator';
-
+import { IsNotEmptyString } from '../../common/decorators/is-not-empty-string.decorator';
+import { IsNotEmptyEmail } from 'src/common/decorators/is-not-empty-email.decorator';
 export class CreateUserDto {
-  @IsOptional()
-  @IsNotEmpty()
-  @IsEmail()
+  @IsNotEmptyEmail()
   readonly email: string;
 
   @IsNotEmptyString()
@@ -15,7 +12,4 @@ export class CreateUserDto {
 
   @IsNotEmptyString()
   readonly lastName: string;
-
-  @IsNotEmptyString()
-  readonly refreshToken?: string;
 }
