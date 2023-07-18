@@ -6,13 +6,10 @@ import {
   Param,
   ParseIntPipe,
   Post,
-  Request,
-  UseGuards,
 } from '@nestjs/common';
 import { Board } from '@prisma/client';
 import { BoardsService } from './boards.service';
 import { CreateBoardDto } from './dto/create-board.dto';
-import { AccessGuard } from 'src/guard/access.guard';
 
 @Controller('boards')
 export class BoardsController {
@@ -28,6 +25,11 @@ export class BoardsController {
   @Get('/:id')
   getBoardById(@Param('id', ParseIntPipe) id: number): Promise<Board> {
     return this.postsService.getBoardById(id);
+  }
+
+  @Get('/recent')
+  getRecentBoard(): Promise<Board[]> {
+    return this.postsService.getRecentBoard();
   }
 
   // 게시물 생성

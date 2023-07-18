@@ -12,6 +12,15 @@ export class BoardRepository {
     return this.prismaService.board.findMany();
   }
 
+  async getRecentBoard(): Promise<Board[]> {
+    return this.prismaService.board.findMany({
+      take: 5,
+      orderBy: {
+        id: 'desc',
+      },
+    });
+  }
+
   // 게시물 생성 할때 Dto를 사용하여 데이터를 받아오고 PrismaService를 사용하여 데이터베이스에 저장
   async createBoard(createPostDto: CreateBoardDto): Promise<Board> {
     const { title, content, u_id } = createPostDto;

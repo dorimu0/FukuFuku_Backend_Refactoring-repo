@@ -15,6 +15,10 @@ export class BoardsService {
     return this.postRepository.getBoardById(id);
   }
 
+  async getRecentBoard(): Promise<Board[]> {
+    return this.postRepository.getRecentBoard();
+  }
+
   createBoard(createPostDto: CreateBoardDto): Promise<Board> {
     return this.postRepository.createBoard(createPostDto);
   }

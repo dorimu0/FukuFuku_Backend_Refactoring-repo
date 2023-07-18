@@ -9,20 +9,18 @@ import {
   Req,
   UseInterceptors,
   Headers,
-  ParseIntPipe,
 } from '@nestjs/common';
 import { UserService } from './user.service';
-import { NoContent, OK, responseFormat } from 'src/common/util/responseFormat';
-import { IsAuthenticable } from 'src/common/decorators/authentic.decorator';
 import {
   UpdateUserIntroductionDto,
   UpdateUserNicknameDto,
-  UpdateUserPictureDto,
+  UpdateCommonWhere as UpdateUserDto,
 } from './dto/update-user.dto';
+import { IsAuthenticable } from 'src/common/decorators/authentic.decorator';
+import { responseFormat, OK, NoContent } from '../common/util/responseFormat';
 import { UserDeleteWhereDto } from './dto/delete-user.dto';
-import { S3Interceptor } from 'src/common/util/upload.interceptor';
-import { User } from '@prisma/client';
-
+import { S3Interceptor } from '../common/util/upload.interceptor';
+import { S3Client } from '@aws-sdk/client-s3';
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
@@ -67,14 +65,9 @@ export class UserController {
   @IsAuthenticable('author')
   @Put('editImage')
   @UseInterceptors(S3Interceptor)
-  async editImage(@Req() req, @Headers('data') userData: UpdateUserPictureDto) {
+  async editImage(@Req() req, @Headers('data') userData: UpdateUserDto) {
     const result = await this.userService.editPicture(userData, req);
 
     return responseFormat(OK, result);
-  }
-
-  @Get('/:id')
-  getUserById(@Param('id', ParseIntPipe) id: number): Promise<User> {
-    return this.userService.getUserById(id);
   }
 }

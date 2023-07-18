@@ -1,6 +1,7 @@
 import {
   ConflictException,
   Injectable,
+  Body,
   UnprocessableEntityException,
   UnsupportedMediaTypeException,
 } from '@nestjs/common';
@@ -17,10 +18,17 @@ import { S3Client } from '@aws-sdk/client-s3';
 @Injectable()
 export class UserService {
   constructor(private readonly userRepository: UserRepository) {}
-  constructor(private readonly userRepository: UserRepository) {}
 
-  user(email: string) {
-    return this.userRepository.findOne({ email });
+  findUser(
+    uniqueValue:
+      | {
+          email: string;
+        }
+      | {
+          nickName: string;
+        },
+  ) {
+    return this.userRepository.findOne(uniqueValue);
   }
 
   async signUp(userDto: CreateUserDto) {
@@ -124,9 +132,5 @@ export class UserService {
     const userInfo = await this.userRepository.updateUser(updateUserPictureDto);
 
     return { picture: userInfo.picture };
-  }
-
-  async getUserById(id: number): Promise<User> {
-    return this.userRepository.getUserById(id);
   }
 }
