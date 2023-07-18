@@ -37,4 +37,12 @@ export class CommentRepository {
       where: { id },
     });
   }
+
+  // 댓글 수정
+  async updateComment(id: number, content: string): Promise<Comment> {
+    return this.prismaService.comment.update({
+      where: { id },
+      data: { content },
+    });
+  }
 }

@@ -28,8 +28,6 @@ export class AuthController {
   @Get(process.env.CALLBACK_PATH)
   @UseGuards(AuthGuard('google'))
   async googleAuthRedirect(@Req() req) {
-    req.headers['Access-Control-Allow-Origin'] = 'http://localhost:5173';
-    console.log(req.headers);
     const data = await this.authService.signByGOuth(req);
     return responseFormat(OK, data);
   }

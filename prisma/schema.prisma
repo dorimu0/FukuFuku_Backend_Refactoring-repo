@@ -14,26 +14,29 @@ model User {
   firstName    String      @db.VarChar(10)
   lastName     String      @db.VarChar(15)
   isAdmin      Int?
-  refreshToken String?     @unique @db.VarChar(250)
-  nickName     String?     @db.VarChar(10)
-  userimage    Userimage[]
+  nickName     String?     @unique @db.VarChar(10)
+  introduction String?     @db.VarChar(50)
   board        Board[]
   comment      Comment[]
   reply        Reply[]
+  like         Like[]
 }
 
-model Userimage {
-  id   Int     @id @default(autoincrement())
-  u_id Int     @unique
-  url  String? @db.VarChar(50)
-  user User    @relation(fields: [u_id], references: [id], onDelete: Cascade)
+model Like {
+  id   Int  @unique @default(autoincrement())
+  b_id Int
+  u_id Int
+  board Board @relation(fields: [b_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  user User @relation(fields: [u_id], references: [id], onDelete: Cascade)
+
+  @@id([id, b_id, u_id])
 }
 
 model Board {
   id        Int       @unique @default(autoincrement())
   title     String    @db.VarChar(20)
   content   String    @db.Text
-  like      Int?      @default(0)
+  like      Like[]
   views     Int?      @default(0)
   createdAt DateTime  @default(now()) @map("created_at")
   comment   Comment[]

@@ -5,6 +5,7 @@ import {
   Get,
   Param,
   ParseIntPipe,
+  Patch,
   Post,
 } from '@nestjs/common';
 import { ReplysService } from './replys.service';
@@ -33,5 +34,14 @@ export class ReplysController {
   @Delete('/:id')
   async deleteReply(@Param('id', ParseIntPipe) id: number): Promise<Reply> {
     return this.replyService.deleteReply(id);
+  }
+
+  // 답글 수정
+  @Patch('/:id')
+  async updateReply(
+    @Param('id', ParseIntPipe) id: number,
+    @Body('content') content: string,
+  ): Promise<Reply> {
+    return this.replyService.updateReply(id, content);
   }
 }

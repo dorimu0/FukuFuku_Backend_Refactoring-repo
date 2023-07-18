@@ -5,14 +5,12 @@ import {
   Get,
   Param,
   ParseIntPipe,
+  Patch,
   Post,
-  Request,
-  UseGuards,
 } from '@nestjs/common';
 import { Board } from '@prisma/client';
 import { BoardsService } from './boards.service';
 import { CreateBoardDto } from './dto/create-board.dto';
-import { AccessGuard } from 'src/guard/access.guard';
 
 @Controller('boards')
 export class BoardsController {
@@ -30,6 +28,11 @@ export class BoardsController {
     return this.postsService.getBoardById(id);
   }
 
+  @Get('/recent')
+  getRecentBoard(): Promise<Board[]> {
+    return this.postsService.getRecentBoard();
+  }
+
   // 게시물 생성
   // @UseGuards(AccessGuard)
   @Post()
@@ -44,5 +47,16 @@ export class BoardsController {
   @Delete('/:id')
   deleteBoard(@Param('id', ParseIntPipe) id: number): Promise<Board> {
     return this.postsService.deleteBoard(id);
+  }
+
+  // 글 내용 수정
+  @Patch('/:id')
+  updateBoard(
+    @Param('id', ParseIntPipe) id: number,
+    @Body('content') content: string,
+  ): Promise<Board> {
+    console.log(id, content);
+
+    return this.postsService.updateBoard(id, content);
   }
 }

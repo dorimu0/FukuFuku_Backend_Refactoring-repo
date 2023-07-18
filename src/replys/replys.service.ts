@@ -21,4 +21,9 @@ export class ReplysService {
   async deleteReply(id: number): Promise<Reply> {
     return this.replyRepository.deleteReply(id);
   }
+
+  // 답글 수정
+  async updateReply(id: number, content: string): Promise<Reply> {
+    return this.replyRepository.updateReply(id, content);
+  }
 }

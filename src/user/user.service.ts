@@ -1,6 +1,7 @@
 import {
   ConflictException,
   Injectable,
+  Body,
   UnprocessableEntityException,
   UnsupportedMediaTypeException,
 } from '@nestjs/common';
@@ -14,13 +15,14 @@ import {
 import { UserDeleteWhereDto } from './dto/delete-user.dto';
 import { deleteObject } from '../common/util/deleteObjectFromS3';
 import { S3Client } from '@aws-sdk/client-s3';
+import { User } from '@prisma/client';
+
 @Injectable()
 export class UserService {
   constructor(private readonly userRepository: UserRepository) {}
-  constructor(private readonly userRepository: UserRepository) {}
 
-  user(email: string) {
-    return this.userRepository.findOne({ email });
+  findUser(uniqueValue: { email?: string; nickName?: string } = {}) {
+    return this.userRepository.findOne(uniqueValue);
   }
 
   async signUp(userDto: CreateUserDto) {

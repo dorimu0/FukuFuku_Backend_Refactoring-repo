@@ -15,11 +15,19 @@ export class BoardsService {
     return this.postRepository.getBoardById(id);
   }
 
+  async getRecentBoard(): Promise<Board[]> {
+    return this.postRepository.getRecentBoard();
+  }
+
   createBoard(createPostDto: CreateBoardDto): Promise<Board> {
     return this.postRepository.createBoard(createPostDto);
   }
 
   deleteBoard(id: number): Promise<Board> {
     return this.postRepository.deleteBoard(id);
+  }
+
+  updateBoard(id: number, content: string): Promise<Board> {
+    return this.postRepository.updateBoard(id, content);
   }
 }

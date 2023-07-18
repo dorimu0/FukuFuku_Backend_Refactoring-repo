@@ -5,6 +5,7 @@ import {
   Get,
   Param,
   ParseIntPipe,
+  Patch,
   Post,
 } from '@nestjs/common';
 import { CommentsService } from './comments.service';
@@ -30,5 +31,14 @@ export class CommentsController {
   @Delete('/:id')
   deleteComment(@Param('id', ParseIntPipe) id: number): Promise<Comment> {
     return this.commentsService.deleteComment(id);
+  }
+
+  // 댓글 수정
+  @Patch('/:id')
+  updateComment(
+    @Param('id', ParseIntPipe) id: number,
+    @Body('content') content: string,
+  ): Promise<Comment> {
+    return this.commentsService.updateComment(id, content);
   }
 }
