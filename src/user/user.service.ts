@@ -1,16 +1,15 @@
-import { ConflictException, Injectable, Body, UnprocessableEntityException, UnsupportedMediaTypeException } from '@nestjs/common';
+import { ConflictException, Injectable, UnprocessableEntityException, UnsupportedMediaTypeException } from '@nestjs/common';
 import { UserRepository } from './user.repository';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserIntroductionDto, UpdateUserNicknameDto, UpdateCommonWhere as UpdateUserDto } from './dto/update-user.dto';
 import { UserDeleteWhereDto } from './dto/delete-user.dto';
 import { deleteObject } from '../common/util/deleteObjectFromS3';
-import { S3Client } from '@aws-sdk/client-s3';
+
 @Injectable()
 export class UserService {
   constructor(
     private readonly userRepository: UserRepository,
   ) { }
-
 
   findUser(uniqueValue: {
     email: string,
@@ -88,8 +87,6 @@ export class UserService {
     // 이미지 파일 보내지 않은 경우
     const fileValidationError = req.fileValidationError;
     if (fileValidationError !== 'format does fit') {
-      console.log(fileValidationError)
-      console.log("%%")
       throw new UnprocessableEntityException();
     }
     // 이미지 파일 형식이 맞지 않은 경우
