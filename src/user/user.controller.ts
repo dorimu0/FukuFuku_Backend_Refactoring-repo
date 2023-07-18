@@ -1,11 +1,12 @@
-import { Controller, Get, Body, Param, Put, Patch, Delete, Req, UseInterceptors, Headers } from '@nestjs/common';
+import { Controller, Get, Body, Param, Put, Patch, Delete, Req, UseInterceptors, Headers, HttpCode, UseGuards } from '@nestjs/common';
 import { UserService } from './user.service';
 import { UpdateUserIntroductionDto, UpdateUserNicknameDto, UpdateCommonWhere as UpdateUserDto } from './dto/update-user.dto';
 import { IsAuthenticable } from 'src/common/decorators/authentic.decorator';
 import { responseFormat, OK, NoContent } from '../common/util/responseFormat'
 import { UserDeleteWhereDto } from './dto/delete-user.dto';
-import { S3Interceptor } from '../common/util/upload.interceptor';
-import { S3Client } from '@aws-sdk/client-s3';
+import { fileInterceptor } from '../common/util/upload.interceptor';
+import { AccessGuard } from 'src/common/guard/access.guard';
+
 @Controller('user')
 export class UserController {
   constructor(
@@ -13,8 +14,8 @@ export class UserController {
   ) { }
 
   // 닉네임 중복 체크
-  // @UseGuards(AccessGuard)
-  @Get('check/:nickName')
+  @UseGuards(AccessGuard)
+  @Get('/check/:nickName')
   async isExistNickname(@Param('nickName') nickname: string) {
     await this.userService.nicknameDuplicateCheck(nickname, 'request');
     return responseFormat(OK);
@@ -26,7 +27,6 @@ export class UserController {
   async editNickname(@Body('data') data: UpdateUserNicknameDto) {
     const result = await this.userService.editNickname(data);
 
-    // UX를 위한 데이터 response
     return responseFormat(OK, result);
   }
 
@@ -42,6 +42,7 @@ export class UserController {
   // 회원 탈퇴
   @IsAuthenticable('author')
   @Delete('/withdraw')
+  @HttpCode(204)
   async withdraw(@Body('data') userData: UserDeleteWhereDto) {
     await this.userService.withdraw(userData);
 
@@ -50,8 +51,8 @@ export class UserController {
 
   // 이미지 수정
   @IsAuthenticable('author')
-  @Put('editImage')
-  @UseInterceptors(S3Interceptor)
+  @Put('/editImage')
+  @UseInterceptors(fileInterceptor)
   async editImage(@Req() req, @Headers('data') userData: UpdateUserDto) {
     const result = await this.userService.editPicture(userData, req);
 
