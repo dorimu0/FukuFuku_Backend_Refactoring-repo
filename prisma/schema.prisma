@@ -33,38 +33,43 @@ model Like {
 }
 
 model Board {
-  id        Int       @unique @default(autoincrement())
+  id        Int       @id @unique @default(autoincrement())
   title     String    @db.VarChar(20)
   content   String    @db.Text
-  like      Like[]
+  like      Like[]   
   views     Int?      @default(0)
   createdAt DateTime  @default(now()) @map("created_at")
-  comment   Comment[]
+  comment   Comment[] 
   u_id      Int
-  user      User      @relation(fields: [u_id], references: [id])
-
-  @@id([id])
+  user      User      @relation(fields: [u_id], references: [id], onDelete: Cascade)
+  tag       Board_Tag[]     
 }
 
-model Postimage {
-  id   Int     @id @default(autoincrement())
-  p_id Int
-  url  String? @db.VarChar(50)
+model Board_Tag {
+  id        Int       @id @default(autoincrement())
+  board     Board     @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  tag       Tag       @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  boardId   Int
+  tagId     Int
+}
+
+model Tag {
+  id        Int       @id @default(autoincrement())
+  name      String    @db.VarChar(20)
+  board_tag Board_Tag[]
+  bt_id     Int
 }
 
 model Comment {
-  id        Int     @unique @default(autoincrement())
+  id        Int     @id @unique @default(autoincrement())
   commenter String  @db.VarChar(10)
   content   String  @db.VarChar(100)
-  img       String
-  like      Int?    @default(0)
-  reply     Reply[]
-  Board     Board?  @relation(fields: [boardId], references: [id])
+  img       String  
+  reply     Reply[] @relation()
+  Board     Board?  @relation(fields: [boardId], references: [id], onDelete: Cascade)
   boardId   Int?
   u_id      Int
-  user      User    @relation(fields: [u_id], references: [id])
-
-  @@id([id])
+  user      User    @relation(fields: [u_id], references: [id], onDelete: Cascade)
 }
 
 model Reply {
@@ -72,11 +77,17 @@ model Reply {
   commenter String  @db.VarChar(10)
   img       String
   content   String  @db.VarChar(100)
-  like      Int?    @default(0)
   c_id      Int
-  comment   Comment @relation(fields: [c_id], references: [id])
+  comment   Comment @relation(fields: [c_id], references: [id], onDelete: Cascade)
   u_id      Int
-  user      User    @relation(fields: [u_id], references: [id])
+  user      User    @relation(fields: [u_id], references: [id], onDelete: Cascade)
 
   @@id([id, c_id])
+}
+
+
+model Postimage {
+  id   Int     @id @default(autoincrement())
+  p_id Int
+  url  String? @db.VarChar(50)
 }
