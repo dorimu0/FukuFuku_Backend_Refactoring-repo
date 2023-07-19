@@ -11,6 +11,7 @@ import {
 import { Board } from '@prisma/client';
 import { BoardsService } from './boards.service';
 import { CreateBoardDto } from './dto/create-board.dto';
+import { EditBoardDto } from './dto/edit-board.dto';
 
 @Controller('boards')
 export class BoardsController {
@@ -53,10 +54,10 @@ export class BoardsController {
   @Patch('/:id')
   updateBoard(
     @Param('id', ParseIntPipe) id: number,
-    @Body('content') content: string,
+    @Body() editBoardDto: EditBoardDto,
   ): Promise<Board> {
-    console.log(id, content);
+    console.log(id, editBoardDto);
 
-    return this.postsService.updateBoard(id, content);
+    return this.postsService.updateBoard(id, editBoardDto);
   }
 }

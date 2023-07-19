@@ -46,13 +46,13 @@ export class UserController {
   }
 
   // 자기 소개 수정
-  @IsAuthenticable('author')
-  @Patch('/editIntroduction')
-  async editIntroduction(@Body('data') updateData: UpdateUserIntroductionDto) {
-    const result = await this.userService.editIntroduction(updateData);
+  // @IsAuthenticable('author')
+  // @Patch('/editIntroduction')
+  // async editIntroduction(@Body('data') updateData: UpdateUserIntroductionDto) {
+  //   const result = await this.userService.editIntroduction(updateData);
 
-    return responseFormat(OK, result);
-  }
+  //   return responseFormat(OK, result);
+  // }
 
   // 회원 탈퇴
   @IsAuthenticable('author')

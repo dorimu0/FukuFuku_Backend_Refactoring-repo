@@ -8,68 +8,48 @@ datasource db {
 }
 
 model User {
-  id           Int         @id @default(autoincrement())
-  email        String      @unique @db.VarChar(40)
-  picture      String      @db.VarChar(100)
-  firstName    String      @db.VarChar(10)
-  lastName     String      @db.VarChar(15)
+  id           Int        @id @default(autoincrement())
+  email        String     @unique @db.VarChar(40)
+  picture      String     @db.VarChar(100)
+  firstName    String     @db.VarChar(10)
+  lastName     String     @db.VarChar(15)
   isAdmin      Int?
-  nickName     String?     @unique @db.VarChar(10)
-  introduction String?     @db.VarChar(50)
+  refreshToken String?    @unique @db.VarChar(250)
+  nickName     String?    @db.VarChar(10)
   board        Board[]
   comment      Comment[]
   reply        Reply[]
-  like         Like[]
-}
-
-model Like {
-  id   Int  @unique @default(autoincrement())
-  b_id Int
-  u_id Int
-  board Board @relation(fields: [b_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  user User @relation(fields: [u_id], references: [id], onDelete: Cascade)
-
-  @@id([id, b_id, u_id])
+  Userimage    Userimage?
 }
 
 model Board {
   id        Int       @id @unique @default(autoincrement())
   title     String    @db.VarChar(20)
   content   String    @db.Text
-  like      Like[]   
+  like      Int?      @default(0)
   views     Int?      @default(0)
   createdAt DateTime  @default(now()) @map("created_at")
-  comment   Comment[] 
   u_id      Int
-  user      User      @relation(fields: [u_id], references: [id], onDelete: Cascade)
-  tag       Board_Tag[]     
-}
+  user      User      @relation(fields: [u_id], references: [id])
+  comment   Comment[]
 
-model Board_Tag {
-  id        Int       @id @default(autoincrement())
-  board     Board     @relation(fields: [boardId], references: [id], onDelete: Cascade)
-  tag       Tag       @relation(fields: [tagId], references: [id], onDelete: Cascade)
-  boardId   Int
-  tagId     Int
-}
-
-model Tag {
-  id        Int       @id @default(autoincrement())
-  name      String    @db.VarChar(20)
-  board_tag Board_Tag[]
-  bt_id     Int
+  @@index([u_id], map: "Board_u_id_fkey")
 }
 
 model Comment {
   id        Int     @id @unique @default(autoincrement())
   commenter String  @db.VarChar(10)
   content   String  @db.VarChar(100)
-  img       String  
-  reply     Reply[] @relation()
-  Board     Board?  @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  img       String
+  like      Int?    @default(0)
   boardId   Int?
   u_id      Int
-  user      User    @relation(fields: [u_id], references: [id], onDelete: Cascade)
+  Board     Board?  @relation(fields: [boardId], references: [id])
+  user      User    @relation(fields: [u_id], references: [id])
+  reply     Reply[]
+
+  @@index([boardId], map: "Comment_boardId_fkey")
+  @@index([u_id], map: "Comment_u_id_fkey")
 }
 
 model Reply {
@@ -77,17 +57,26 @@ model Reply {
   commenter String  @db.VarChar(10)
   img       String
   content   String  @db.VarChar(100)
+  like      Int?    @default(0)
   c_id      Int
-  comment   Comment @relation(fields: [c_id], references: [id], onDelete: Cascade)
   u_id      Int
-  user      User    @relation(fields: [u_id], references: [id], onDelete: Cascade)
+  comment   Comment @relation(fields: [c_id], references: [id])
+  user      User    @relation(fields: [u_id], references: [id])
 
   @@id([id, c_id])
+  @@index([c_id], map: "Reply_c_id_fkey")
+  @@index([u_id], map: "Reply_u_id_fkey")
 }
-
 
 model Postimage {
   id   Int     @id @default(autoincrement())
   p_id Int
   url  String? @db.VarChar(50)
+}
+
+model Userimage {
+  id   Int     @id @default(autoincrement())
+  u_id Int     @unique
+  url  String? @db.VarChar(50)
+  User User    @relation(fields: [u_id], references: [id], onDelete: Cascade)
 }

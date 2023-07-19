@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
 import { Board } from '@prisma/client';
 import { CreateBoardDto } from './dto/create-board.dto';
+import { EditBoardDto } from './dto/edit-board.dto';
 
 @Injectable()
 export class BoardRepository {
@@ -57,10 +58,15 @@ export class BoardRepository {
   }
 
   // 게시물 수정
-  async updateBoard(id: number, content: string): Promise<Board> {
+  async updateBoard(id: number, editBoardDto: EditBoardDto): Promise<Board> {
+    const { title, content } = editBoardDto;
+
     return this.prismaService.board.update({
       where: { id },
-      data: { content },
+      data: {
+        title,
+        content,
+      },
     });
   }
 }
