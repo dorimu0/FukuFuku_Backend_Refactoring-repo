@@ -23,29 +23,30 @@ export class AuthService {
     ) {
       throw new UnauthorizedException('영진전문대 학생만 사용할 수 있어요.');
     }
+
+    const userInfo = await this.userService.sign(googleUserInfo);
+
     // token
     const accessToken = await this.generateToken(
-      googleUserInfo,
+      userInfo,
       'JWT_ACCESS_SECRET',
       'JWT_ACCESS_EXPRIESIN',
     );
     const refreshToken = await this.generateToken(
-      googleUserInfo,
+      userInfo,
       'JWT_REFRESH_SECRET',
       'JWT_REFRESH_EXPRIESIN',
     );
-
-    const userInfo = await this.userService.sign(googleUserInfo);
 
     return { ...userInfo, accessToken, refreshToken };
   }
 
   async refresh(tokens) {
     try {
-      const emailFromAccessToken = await this.jwtService.decode(
+      const emailFromAccessToken = this.jwtService.decode(
         tokens.accessToken,
       );
-      const emailFromRefreshToken = await this.jwtService.decode(
+      const emailFromRefreshToken = this.jwtService.decode(
         tokens.refreshToken,
       );
 
@@ -79,7 +80,8 @@ export class AuthService {
     expiresIn: string,
   ): Promise<string> {
     const payload = {
-      email: userInfo?.email,
+      id: `${userInfo.id}`,
+      email: userInfo.email
     };
 
     const token = await this.jwtService.signAsync(payload, {
