@@ -9,20 +9,20 @@ import {
   Req,
   UseInterceptors,
   Headers,
-  ParseIntPipe,
+  UseGuards,
+  HttpCode,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import {
   UpdateUserIntroductionDto,
   UpdateUserNicknameDto,
-  UpdateCommonWhere as UpdateUserDto,
 } from './dto/update-user.dto';
 import { IsAuthenticable } from 'src/common/decorators/authentic.decorator';
 import { responseFormat, OK, NoContent } from '../common/util/responseFormat';
 import { UserDeleteWhereDto } from './dto/delete-user.dto';
 import { fileInterceptor } from '../common/util/upload.interceptor';
 import { AccessGuard } from 'src/common/guard/access.guard';
-
+import { UserRoleGuard } from 'src/common/guard/role.guard';
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
@@ -36,7 +36,7 @@ export class UserController {
   }
 
   // 닉네임 수정
-  @IsAuthenticable('author')
+  @IsAuthenticable(UserRoleGuard, 'author', 'id')
   @Put('/editNickname')
   async editNickname(@Body('data') data: UpdateUserNicknameDto) {
     const result = await this.userService.editNickname(data);
@@ -45,7 +45,7 @@ export class UserController {
   }
 
   // 자기 소개 수정
-  @IsAuthenticable('author')
+  @IsAuthenticable(UserRoleGuard, 'author', 'id')
   @Patch('/editIntroduction')
   async editIntroduction(@Body('data') updateData: UpdateUserIntroductionDto) {
     const result = await this.userService.editIntroduction(updateData);
@@ -54,7 +54,7 @@ export class UserController {
   }
 
   // 회원 탈퇴
-  @IsAuthenticable('author')
+  @IsAuthenticable(UserRoleGuard, 'author', 'id')
   @Delete('/withdraw')
   @HttpCode(204)
   async withdraw(@Body('data') userData: UserDeleteWhereDto) {
@@ -64,17 +64,16 @@ export class UserController {
   }
 
   // 이미지 수정
-  @IsAuthenticable('author')
+  @IsAuthenticable(UserRoleGuard, 'author', 'id')
   @Put('/editImage')
   @UseInterceptors(fileInterceptor)
-  async editImage(@Req() req, @Headers('data') userData: UpdateUserDto) {
-    const result = await this.userService.editPicture(userData, req);
+  async editImage(@Req() req, @Headers('data') u_id) {
+    const id = parseInt(u_id, 10);
+
+    const result = await this.userService.editPicture(id, req);
 
     return responseFormat(OK, result);
   }
 
-  @Get('/:id')
-  getUserById(@Param('id', ParseIntPipe) id: number): Promise<User> {
-    return this.userService.getUserById(id);
-  }
+  // 자신이 쓴 글 검색
 }

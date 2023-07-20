@@ -7,9 +7,9 @@ export class UserRepository {
   constructor(private prisma: PrismaService) {}
 
   async findOne(
-    userWhereUniqueInput: Prisma.UserWhereUniqueInput,
+    userWhereUniqueInput: Prisma.UserWhereInput,
   ): Promise<User | null> {
-    return this.prisma.user.findUnique({
+    return this.prisma.user.findFirst({
       where: userWhereUniqueInput,
     });
   }
@@ -51,12 +51,6 @@ export class UserRepository {
   async deleteUser(where: Prisma.UserWhereUniqueInput): Promise<User> {
     return this.prisma.user.delete({
       where,
-    });
-  }
-
-  async getUserById(id: number): Promise<User> {
-    return this.prisma.user.findUnique({
-      where: { id },
     });
   }
 }

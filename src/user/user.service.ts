@@ -4,7 +4,6 @@ import { CreateUserDto } from './dto/create-user.dto';
 import {
   UpdateUserIntroductionDto,
   UpdateUserNicknameDto,
-  UpdateCommonWhere as UpdateUserDto,
 } from './dto/update-user.dto';
 import { UserDeleteWhereDto } from './dto/delete-user.dto';
 import { deleteObject } from '../common/util/deleteObjectFromS3';
@@ -16,9 +15,9 @@ export class UserService {
   ) { }
 
   findUser(uniqueValue: {
-    email: string,
-  } | {
-    nickName: string
+    id?: number,
+    email?: string,
+    nickName?: string
   }) {
     return this.userRepository.findOne(uniqueValue);
   }
@@ -32,7 +31,7 @@ export class UserService {
     // 가입 여부 확인
     let userInfo = await this.userRepository.findOne({ email: userDto.email });
 
-    if (userInfo !== null) {
+    if (userInfo) {
       return userInfo;
     }
 
@@ -88,29 +87,30 @@ export class UserService {
   // 회원 탈퇴
   async withdraw(userInfo: UserDeleteWhereDto) {
     const result = await this.userRepository.deleteUser({
-      email: userInfo.where.email,
+      id: userInfo.where.id,
     });
     return result;
   }
 
   // 이미지 수정
-  async editPicture(updateUserDto, req) {
+  async editPicture(id, req) {
     // 이미지 파일 보내지 않은 경우
-    const fileValidationError = req.fileValidationError;
-    if (fileValidationError !== 'format does fit') {
-      throw new UnprocessableEntityException();
+    if (!req?.file) {
+      throw new UnprocessableEntityException('No file');
     }
+    const fileValidationError = req.fileValidationError;
     // 이미지 파일 형식이 맞지 않은 경우
-    else if (fileValidationError === "format doesn't fit") {
+    if (fileValidationError === "format doesn't fit") {
       throw new UnsupportedMediaTypeException();
     }
-    // 이미지 저장 후 url 가져오기
-    const picture = req?.files[0].location;
-    const email = updateUserDto;
-    const updateUserPictureDto = { where: { email }, data: { picture } };
+    // url 가져오기
+    const picture = req.file.location;
+    const updateUserPictureDto = { where: { id }, data: { picture } };
 
     // 기존 S3 이미지 삭제
-    const previousUserInfo = await this.userRepository.findOne({ email });
+    const previousUserInfo = await this.userRepository.findOne({ id });
+    if (previousUserInfo !== null) {
+    }
     const key = previousUserInfo.picture;
 
     // S3 이미지 형식일때 삭제
