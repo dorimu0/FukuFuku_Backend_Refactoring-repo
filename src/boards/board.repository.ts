@@ -41,6 +41,15 @@ export class BoardRepository {
   async getBoardById(id: number): Promise<Board> {
     const find = this.prismaService.board.findUnique({
       where: { id },
+      include: {
+        comment: true,
+        board_tag: {
+          include: {
+            tag: true,
+          },
+        },
+        user: true,
+      },
     });
 
     if (!find) {

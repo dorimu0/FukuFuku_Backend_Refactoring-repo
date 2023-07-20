@@ -1,3 +1,6 @@
+import { IsNotEmpty } from 'class-validator';
+
 export class TagDto {
-  tag: string[];
+  @IsNotEmpty()
+  name: string;
 }
