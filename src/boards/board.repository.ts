@@ -39,7 +39,7 @@ export class BoardRepository {
 
   // id로 게시물 가져오기
   async getBoardById(id: number): Promise<Board> {
-    const find = this.prismaService.board.findUnique({
+    const find = await this.prismaService.board.findUnique({
       where: { id },
       include: {
         comment: true,

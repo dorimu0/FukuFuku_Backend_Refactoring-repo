@@ -16,4 +16,9 @@ export class TagsController {
   async createTags(@Body() tagDto: TagDto): Promise<Tag> {
     return await this.tagsService.createTags(tagDto);
   }
+
+  @Get('/:tagId/boards')
+  async findBoardByTagId(@Param('tagId') tagId: number): Promise<Tag> {
+    return await this.tagsService.findBoardByTagId(tagId);
+  }
 }

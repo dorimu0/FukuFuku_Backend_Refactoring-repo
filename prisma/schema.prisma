@@ -23,28 +23,28 @@ model User {
 }
 
 model Board {
-  id        Int       @id @unique @default(autoincrement())
-  title     String    @db.VarChar(20)
-  content   String    @db.Text
-  views     Int?      @default(0)
-  createdAt DateTime  @default(now()) @map("created_at")
-  comment   Comment[] 
+  id        Int         @id @unique @default(autoincrement())
+  title     String      @db.VarChar(20)
+  content   String      @db.Text
+  views     Int?        @default(0)
+  createdAt DateTime    @default(now()) @map("created_at")
+  comment   Comment[]
   u_id      Int
-  user      User      @relation(fields: [u_id], references: [id], onDelete: Cascade)
+  user      User        @relation(fields: [u_id], references: [id], onDelete: Cascade)
   board_tag Board_Tag[]
 }
 
 model Board_Tag {
-  id       Int    @id @unique @default(autoincrement())
-  boardId  Int
-  tagId    Int
-  board    Board  @relation(fields: [boardId], references: [id])
-  tag      Tag    @relation(fields: [tagId], references: [id])
+  id      Int   @id @unique @default(autoincrement())
+  boardId Int
+  tagId   Int
+  board   Board @relation(fields: [boardId], references: [id])
+  tag     Tag   @relation(fields: [tagId], references: [id])
 }
 
 model Tag {
-  id    Int     @id @unique @default(autoincrement())
-  name  String  @db.VarChar(10)
+  id        Int         @id @unique @default(autoincrement())
+  name      String      @unique @db.VarChar(10)
   board_tag Board_Tag[]
 }
 
@@ -52,7 +52,7 @@ model Comment {
   id        Int     @id @unique @default(autoincrement())
   commenter String  @db.VarChar(10)
   content   String  @db.VarChar(100)
-  img       String  
+  img       String
   reply     Reply[] @relation()
   Board     Board?  @relation(fields: [boardId], references: [id], onDelete: Cascade)
   boardId   Int?

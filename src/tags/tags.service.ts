@@ -16,4 +16,9 @@ export class TagsService {
   async createTags(tagDto: TagDto): Promise<Tag> {
     return await this.tagRepository.createTags(tagDto);
   }
+
+  // 태그 id를 가지고 있는 게시물 가져오기
+  async findBoardByTagId(tagId: number): Promise<Tag> {
+    return await this.tagRepository.findBoardByTagId(tagId);
+  }
 }
