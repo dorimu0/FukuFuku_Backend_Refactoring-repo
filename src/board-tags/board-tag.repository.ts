@@ -32,4 +32,13 @@ export class BoardTagRepository {
       },
     });
   }
+
+  // 게시물 id로 태그 삭제
+  async deleteBoardTags(boardId: number): Promise<void> {
+    await this.prismaService.board_Tag.deleteMany({
+      where: {
+        boardId,
+      },
+    });
+  }
 }

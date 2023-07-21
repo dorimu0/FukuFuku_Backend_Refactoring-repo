@@ -56,8 +56,6 @@ export class BoardsController {
     @Param('id', ParseIntPipe) id: number,
     @Body() editBoardDto: EditBoardDto,
   ): Promise<Board> {
-    console.log(id, editBoardDto);
-
     return this.postsService.updateBoard(id, editBoardDto);
   }
 }

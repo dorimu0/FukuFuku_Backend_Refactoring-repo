@@ -16,4 +16,9 @@ export class BoardTagsService {
   async createBoardTags(boardTagDto: BoardTagDto): Promise<Board_Tag> {
     return await this.boardTagRepository.createBoardTags(boardTagDto);
   }
+
+  // 게시물 id로 태그 삭제
+  async deleteBoardTags(boardId: number): Promise<void> {
+    return await this.boardTagRepository.deleteBoardTags(boardId);
+  }
 }

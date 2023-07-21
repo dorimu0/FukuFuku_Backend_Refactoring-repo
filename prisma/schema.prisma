@@ -38,8 +38,8 @@ model Board_Tag {
   id      Int   @id @unique @default(autoincrement())
   boardId Int
   tagId   Int
-  board   Board @relation(fields: [boardId], references: [id])
-  tag     Tag   @relation(fields: [tagId], references: [id])
+  board   Board @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  tag     Tag   @relation(fields: [tagId], references: [id], onDelete: Cascade)
 }
 
 model Tag {
@@ -53,7 +53,7 @@ model Comment {
   commenter String  @db.VarChar(10)
   content   String  @db.VarChar(100)
   img       String
-  reply     Reply[] @relation()
+  reply     Reply[] 
   Board     Board?  @relation(fields: [boardId], references: [id], onDelete: Cascade)
   boardId   Int?
   u_id      Int

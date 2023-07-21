@@ -1,4 +1,4 @@
-import { Body, Controller, Post, Get, Param } from '@nestjs/common';
+import { Body, Controller, Post, Get, Param, Delete } from '@nestjs/common';
 import { BoardTagsService } from './board-tags.service';
 import { BoardTagDto } from './dto/boardTag.dto';
 import { Board_Tag } from '@prisma/client';
@@ -18,5 +18,10 @@ export class BoardTagsController {
   @Post()
   async createBoardTags(@Body() boardTagDto: BoardTagDto): Promise<Board_Tag> {
     return await this.boardTagsService.createBoardTags(boardTagDto);
+  }
+
+  @Delete('/:boardId')
+  async deleteBoardTags(@Param('boardId') boardId: number): Promise<void> {
+    return await this.boardTagsService.deleteBoardTags(boardId);
   }
 }
