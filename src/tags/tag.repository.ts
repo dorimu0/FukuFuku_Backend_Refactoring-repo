@@ -47,7 +47,11 @@ export class TagRepository {
       include: {
         board_tag: {
           include: {
-            board: true,
+            board: {
+              include: {
+                user: true,
+              },
+            },
           },
         },
       },

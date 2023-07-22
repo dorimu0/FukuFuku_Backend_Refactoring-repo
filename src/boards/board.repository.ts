@@ -78,4 +78,38 @@ export class BoardRepository {
       },
     });
   }
+
+  // 게시물 검색 태그도 검색
+  async searchBoard(keyword: string): Promise<Board[]> {
+    return this.prismaService.board.findMany({
+      where: {
+        OR: [
+          {
+            title: {
+              contains: keyword,
+            },
+          },
+          {
+            content: {
+              contains: keyword,
+            },
+          },
+          {
+            board_tag: {
+              some: {
+                tag: {
+                  name: {
+                    contains: keyword,
+                  },
+                },
+              },
+            },
+          },
+        ],
+      },
+      include: {
+        user: true,
+      },
+    });
+  }
 }

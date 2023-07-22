@@ -58,4 +58,10 @@ export class BoardsController {
   ): Promise<Board> {
     return this.postsService.updateBoard(id, editBoardDto);
   }
+
+  // 게시물 검색
+  @Get('/search/:keyword')
+  searchBoard(@Param('keyword') keyword: string): Promise<Board[]> {
+    return this.postsService.searchBoard(keyword);
+  }
 }

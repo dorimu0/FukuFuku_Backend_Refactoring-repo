@@ -31,4 +31,8 @@ export class BoardsService {
   updateBoard(id: number, editBoardDto: EditBoardDto): Promise<Board> {
     return this.postRepository.updateBoard(id, editBoardDto);
   }
+
+  async searchBoard(keyword: string): Promise<Board[]> {
+    return this.postRepository.searchBoard(keyword);
+  }
 }
