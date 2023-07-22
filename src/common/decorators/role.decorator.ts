@@ -2,7 +2,7 @@ import { SetMetadata } from "@nestjs/common";
 
 export type AllowedRole = 'admin' | 'author';
 
-export type AllowedOption = 'email' | 'id';
+export type AllowedOption = 'id' | 'u_id';
 
 export const Role = (roles: AllowedRole[]) => SetMetadata('roles', roles);
 
