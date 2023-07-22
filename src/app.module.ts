@@ -8,6 +8,7 @@ import { BoardsModule } from './boards/boards.module';
 import { Passport } from 'passport';
 import { CommentsModule } from './comments/comments.module';
 import { ReplysModule } from './replys/replys.module';
+import { LikeModule } from './like/like.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { ReplysModule } from './replys/replys.module';
     BoardsModule,
     CommentsModule,
     ReplysModule,
+    LikeModule,
   ],
   controllers: [AppController],
   providers: [AppService],
