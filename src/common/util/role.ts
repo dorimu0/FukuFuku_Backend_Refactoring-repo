@@ -8,31 +8,17 @@ export class Role {
     protected readonly userService: UserService
   ) { }
 
-  // jwt 를 디코딩한 결과 값과 body에 있는 값을비교
-  getUserInfo(request: Request, option: string) {
-    const { data } = request.body
-
-    // 옵션에 따라 다른 인증 방식
-    if (option === 'email') {
-      return data.where[option];
-    }
-
-    if (option === 'id') {
-      // 보드 아이디로 조회한 데이터의 u_id 값과 보낸 access 토큰의 페이로드에 포함된 id 값을 대조
-      return data.where[option];
-    }
-  }
-
   // 요청자와 유저가 같은지 확인
   isAuthor(request: Request, option: string): boolean {
     try {
-      const clientInfo = this.getClientInfo(request)[option];
       const userInfo = this.getUserInfo(request, option);
 
+      const clientInfo = this.getClientId(request);
+      
       return clientInfo == userInfo;
     } catch (error) {
-      const isAuthor = this.isAuthorByHeader(request, option);
-
+      const isAuthor = this.isAuthorByHeader(request);
+      
       if (isAuthor) {
         return true;
       }
@@ -40,22 +26,13 @@ export class Role {
     }
   }
 
-  // req 의 헤더에 token 디코딩
-  getClientInfo(request: Request): string | { [key: string]: any } {
-    const [type, token] = request.headers.authorization.split(' ') ?? [];
-    const decoded = this.jwtService.decode(token);
-    return decoded;
-  }
-
   // 관리자 여부 확인
-  async isAdmin(request: Request, option: string): Promise<boolean> {
-    // 디코딩한 토큰값
-    const decodedToken = this.getClientInfo(request)[option];
+  async isAdmin(request: Request): Promise<boolean> {
+    // 요청자의 id
+    const id = parseInt(this.getClientId(request));
 
     // 관리자 인지 확인
-    const findUserInput = (option === 'id') ? { id: decodedToken.id } : { email: decodedToken.email };
-    
-    const userInfo = await this.userService.findUser(findUserInput);
+    const userInfo = await this.userService.findUser({id});
 
     if (userInfo.isAdmin !== null) {
       return true;
@@ -64,9 +41,27 @@ export class Role {
     return false;
   }
 
+  // jwt 를 디코딩한 결과 값과 body에 있는 값을비교
+  getUserInfo(request: Request, option: string) {
+    const { data } = request.body
+    // 옵션에 따라 다른 인증 방식
+    if (option === 'u_id') {
+      return data['u_id']
+    }
+
+    return data.where[option];
+  }
+
+  // req 의 헤더에 token 디코딩, id 값 추출
+  getClientId(request: Request): string {
+    const [type, token] = request.headers.authorization.split(' ') ?? [];
+    const decoded = this.jwtService.decode(token);
+    return decoded['id'];
+  }
+  
   // 헤더의 정보로 확인
-  isAuthorByHeader(request: Request, option: string) {
-    const clientInfo = this.getClientInfo(request)[option];
+  isAuthorByHeader(request: Request) {
+    const clientInfo = this.getClientId(request);
     const userInfo = request.headers.data;
     return clientInfo === userInfo;
   }
