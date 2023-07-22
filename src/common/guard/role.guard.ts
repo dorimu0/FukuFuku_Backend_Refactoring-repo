@@ -1,4 +1,4 @@
-import { CanActivate, ExecutionContext, Injectable, NotFoundException, UnauthorizedException, UnprocessableEntityException } from "@nestjs/common";
+import { CanActivate, ExecutionContext, ForbiddenException, Injectable, UnauthorizedException } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import { Reflector } from "@nestjs/core";
 import { AllowedOption, AllowedRole } from "../decorators/role.decorator";
@@ -31,34 +31,23 @@ export class UserRoleGuard extends Role implements CanActivate {
       return true;
     }
 
-    // 요청자가 실존하는지 확인
+    // 요청자, 수정하려는 데이터의 실존 여부
     const id = super.getUserInfo(request, requiredOption);
-
-    if (!id) {
-      throw new UnprocessableEntityException();
-    }
-
     const isUser = await this.userService.findUser({ id: parseInt(id) });
 
-    if (!isUser) {
-      throw new NotFoundException();
+    if (!id || !isUser) {
+      throw new UnauthorizedException();
     }
 
-    // 요청자 본인의 데이터인지 확인
-    if (requiredRoles === 'author') {
-      const isAuthenticable = super.isAuthor(request, requiredOption);
-      // console.log(isAuthenticable)
-      if (!isAuthenticable) {
-        throw new UnauthorizedException();
-      }
+    // 요구되는 롤에 대한 요청자의 부합 여부
+    const isAuthenticable = (requiredRoles === 'author')
+      ? super.isAuthor(request, requiredOption)
+      : await super.isAdmin(request);    
 
-      return isAuthenticable;
+    if (!isAuthenticable) {
+      throw new ForbiddenException();
     }
 
-    // 관리자 인지 확인
-    if (requiredRoles === 'admin') {
-      const isAuthenticable = await super.isAdmin(request, requiredOption);
-      return isAuthenticable;
-    }
+    return true;
   }
 }
