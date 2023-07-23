@@ -18,7 +18,7 @@ import {
   UpdateUserNicknameDto,
 } from './dto/update-user.dto';
 import { IsAuthenticable } from 'src/common/decorators/authentic.decorator';
-import { responseFormat, OK, NoContent } from '../common/util/responseFormat';
+import { responseFormat, OK, NoContent, Created } from '../common/util/responseFormat';
 import { UserDeleteWhereDto } from './dto/delete-user.dto';
 import { fileInterceptor } from '../common/util/upload.interceptor';
 import { AccessGuard } from 'src/common/guard/access.guard';
@@ -37,11 +37,12 @@ export class UserController {
 
   // 닉네임 수정
   @IsAuthenticable(UserRoleGuard, 'author', 'id')
+  @HttpCode(201)
   @Put('/editNickname')
   async editNickname(@Body('data') data: UpdateUserNicknameDto) {
     const result = await this.userService.editNickname(data);
 
-    return responseFormat(OK, result);
+    return responseFormat(Created, result);
   }
 
   // 자기 소개 수정
@@ -76,4 +77,17 @@ export class UserController {
   }
 
   // 자신이 쓴 글 검색
+  // 유저 페이지로 이동
+  @Get('/:nickName')
+  async userPage(@Param('nickName') nickName: string) {
+    const userPage = await this.userService.mypage(nickName);
+    return userPage;
+  }
+
+  
+  // 좋아요 누른 글 불러오기 - mypage
+  @Get()
+  async myLiked() {
+    
+  }
 }
