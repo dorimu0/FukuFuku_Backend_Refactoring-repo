@@ -39,13 +39,12 @@ model Board {
 }
 
 model Like {
-  id    Int   @unique @default(autoincrement())
   b_id  Int
   u_id  Int
   board Board @relation(fields: [b_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
   user  User  @relation(fields: [u_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
-  @@id([id, b_id, u_id])
+  @@id([b_id, u_id])
 }
 
 model Postimage {
