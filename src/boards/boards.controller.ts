@@ -7,6 +7,7 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Query,
 } from '@nestjs/common';
 import { Board } from '@prisma/client';
 import { BoardsService } from './boards.service';
@@ -14,23 +15,25 @@ import { CreateBoardDto } from './dto/create-board.dto';
 
 @Controller('boards')
 export class BoardsController {
-  constructor(private postsService: BoardsService) {}
+  constructor(private postsService: BoardsService) { }
 
-  // 전체 게시물 가져오기
+  // 게시판 가져오기
   @Get()
-  getAllBoard(): Promise<Board[]> {
-    return this.postsService.getAllBoards();
+  getAllBoard(@Query('option') option: string): Promise<Board[]> {
+    return this.postsService.getAllBoards(option);
   }
 
-  // id로 게시물 가져오기
+  // 특정한 글 하나 가져오기
   @Get('/:id')
-  getBoardById(@Param('id', ParseIntPipe) id: number): Promise<Board> {
-    return this.postsService.getBoardById(id);
+  async getBoard(@Param('id', ParseIntPipe) id: number) {
+    const test = this.postsService.getBoardById(id);
+    return test;
   }
 
-  @Get('/recent')
-  getRecentBoard(): Promise<Board[]> {
-    return this.postsService.getRecentBoard();
+  // 특정 사용자가 작성한 게시글 가져오기
+  @Get('/author/:id')
+  getUsersBoard(@Param('id') id: number) {
+    return this.postsService.getUsersBoards(id);
   }
 
   // 게시물 생성
@@ -55,8 +58,6 @@ export class BoardsController {
     @Param('id', ParseIntPipe) id: number,
     @Body('content') content: string,
   ): Promise<Board> {
-    console.log(id, content);
-
-    return this.postsService.updateBoard(id, content);
+    return this.postsService.updateBoardContent(id, content);
   }
 }
