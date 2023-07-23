@@ -4,7 +4,7 @@ import { User, Prisma } from '@prisma/client';
 
 @Injectable()
 export class UserRepository {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   async findOne(
     userWhereUniqueInput: Prisma.UserWhereInput,
@@ -33,7 +33,7 @@ export class UserRepository {
 
   async createUser(data: Prisma.UserCreateInput): Promise<User> {
     return this.prisma.user.create({
-      data,
+      data: { ...data, nickName: data.email }
     });
   }
 
@@ -51,6 +51,20 @@ export class UserRepository {
   async deleteUser(where: Prisma.UserWhereUniqueInput): Promise<User> {
     return this.prisma.user.delete({
       where,
+    });
+  }
+
+  // 유저 페이지
+  async getUserPage(nickName: string) {
+    return this.prisma.user.findMany({
+      where: {
+        nickName: nickName
+      },
+      select: {
+        board: {
+          include: { postImage: true, like: true }
+        }
+      }
     });
   }
 }

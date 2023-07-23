@@ -1,4 +1,4 @@
-import { ConflictException, Injectable, UnprocessableEntityException, UnsupportedMediaTypeException } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException, UnprocessableEntityException, UnsupportedMediaTypeException } from '@nestjs/common';
 import { UserRepository } from './user.repository';
 import { CreateUserDto } from './dto/create-user.dto';
 import {
@@ -31,7 +31,7 @@ export class UserService {
     // 가입 여부 확인
     let userInfo = await this.userRepository.findOne({ email: userDto.email });
 
-    if (userInfo) {
+    if (userInfo !== null) {
       return userInfo;
     }
 
@@ -124,4 +124,12 @@ export class UserService {
     return { picture: userInfo.picture };
   }
 
+  // 마이페이지 이동
+  async mypage(nickName: string) {
+    // 유저 닉네임으로 조회 - 닉네임은 기본적으로 email과 같은 값을 가지도록 해 참조하지 못하는 일은 생기지 않을 것임
+    const userPage = await this.userRepository.getUserPage(nickName);
+    
+    if (!userPage.length) throw new NotFoundException();
+    return userPage;
+  }
 }
