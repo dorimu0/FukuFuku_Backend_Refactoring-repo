@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
 import { Board } from '@prisma/client';
 import { CreateBoardDto } from './dto/create-board.dto';
+import { EditBoardDto } from './dto/edit-board.dto';
 
 @Injectable()
 export class BoardRepository {
@@ -38,8 +39,17 @@ export class BoardRepository {
 
   // id로 게시물 가져오기
   async getBoardById(id: number): Promise<Board> {
-    const find = this.prismaService.board.findUnique({
+    const find = await this.prismaService.board.findUnique({
       where: { id },
+      include: {
+        comment: true,
+        board_tag: {
+          include: {
+            tag: true,
+          },
+        },
+        user: true,
+      },
     });
 
     if (!find) {
@@ -57,10 +67,49 @@ export class BoardRepository {
   }
 
   // 게시물 수정
-  async updateBoard(id: number, content: string): Promise<Board> {
+  async updateBoard(id: number, editBoardDto: EditBoardDto): Promise<Board> {
+    const { title, content } = editBoardDto;
+
     return this.prismaService.board.update({
       where: { id },
-      data: { content },
+      data: {
+        title,
+        content,
+      },
+    });
+  }
+
+  // 게시물 검색 태그도 검색
+  async searchBoard(keyword: string): Promise<Board[]> {
+    return this.prismaService.board.findMany({
+      where: {
+        OR: [
+          {
+            title: {
+              contains: keyword,
+            },
+          },
+          {
+            content: {
+              contains: keyword,
+            },
+          },
+          {
+            board_tag: {
+              some: {
+                tag: {
+                  name: {
+                    contains: keyword,
+                  },
+                },
+              },
+            },
+          },
+        ],
+      },
+      include: {
+        user: true,
+      },
     });
   }
 }

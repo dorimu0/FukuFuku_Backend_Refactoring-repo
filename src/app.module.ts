@@ -5,9 +5,10 @@ import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import { BoardsModule } from './boards/boards.module';
-import { Passport } from 'passport';
 import { CommentsModule } from './comments/comments.module';
 import { ReplysModule } from './replys/replys.module';
+import { TagsModule } from './tags/tags.module';
+import { BoardTagsModule } from './board-tags/board-tags.module';
 
 @Module({
   imports: [
@@ -20,6 +21,8 @@ import { ReplysModule } from './replys/replys.module';
     BoardsModule,
     CommentsModule,
     ReplysModule,
+    TagsModule,
+    BoardTagsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

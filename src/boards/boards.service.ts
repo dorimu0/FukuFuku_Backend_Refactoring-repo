@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Board } from '@prisma/client';
 import { BoardRepository } from './board.repository';
 import { CreateBoardDto } from './dto/create-board.dto';
+import { EditBoardDto } from './dto/edit-board.dto';
 
 @Injectable()
 export class BoardsService {
@@ -27,7 +28,11 @@ export class BoardsService {
     return this.postRepository.deleteBoard(id);
   }
 
-  updateBoard(id: number, content: string): Promise<Board> {
-    return this.postRepository.updateBoard(id, content);
+  updateBoard(id: number, editBoardDto: EditBoardDto): Promise<Board> {
+    return this.postRepository.updateBoard(id, editBoardDto);
+  }
+
+  async searchBoard(keyword: string): Promise<Board[]> {
+    return this.postRepository.searchBoard(keyword);
   }
 }
