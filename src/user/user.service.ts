@@ -77,12 +77,12 @@ export class UserService {
   }
 
   // 자기 소개 수정
-  async editIntroduction(updateUserIntroductionDto: UpdateUserIntroductionDto) {
-    const userInfo = await this.userRepository.updateUser(
-      updateUserIntroductionDto,
-    );
-    return { introduction: userInfo.introduction };
-  }
+  // async editIntroduction(updateUserIntroductionDto: UpdateUserIntroductionDto) {
+  //   const userInfo = await this.userRepository.updateUser(
+  //     updateUserIntroductionDto,
+  //   );
+  //   return { introduction: userInfo.introduction };
+  // }
 
   // 회원 탈퇴
   async withdraw(userInfo: UserDeleteWhereDto) {

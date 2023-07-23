@@ -5,10 +5,11 @@ import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import { BoardsModule } from './boards/boards.module';
-import { Passport } from 'passport';
 import { CommentsModule } from './comments/comments.module';
 import { ReplysModule } from './replys/replys.module';
 import { LikeModule } from './like/like.module';
+import { TagsModule } from './tags/tags.module';
+import { BoardTagsModule } from './board-tags/board-tags.module';
 
 @Module({
   imports: [
@@ -22,6 +23,8 @@ import { LikeModule } from './like/like.module';
     CommentsModule,
     ReplysModule,
     LikeModule,
+    TagsModule,
+    BoardTagsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

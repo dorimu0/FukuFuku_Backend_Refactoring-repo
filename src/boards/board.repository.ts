@@ -2,8 +2,8 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
 import { Board, Prisma } from '@prisma/client';
 import { CreateBoardDto } from './dto/create-board.dto';
+import { EditBoardDto } from './dto/edit-board.dto';
 const TAKE = 10;
-
 @Injectable()
 export class BoardRepository {
   constructor(private readonly prismaService: PrismaService) { }
@@ -15,7 +15,7 @@ export class BoardRepository {
       take: TAKE,
       orderBy: searchOption,
       include: {
-        postImage: { select: { url: true } },
+        boardImage: { select: { url: true } },
         user: { select: { id: true, nickName: true } },
         like: true
       }
@@ -40,20 +40,6 @@ export class BoardRepository {
     return board;
   }
 
-  // 조회수
-  async updateViews(id: number) {
-    await this.prismaService.board.update({
-      where: {
-        id
-      },
-      data: {
-        views: {
-          increment: 1
-        }
-      }
-    });
-  }
-
   // 유저가 작성한 글 가져오기
   async getUsersBoards(id: number) {
     return this.prismaService.user.findMany({
@@ -62,7 +48,7 @@ export class BoardRepository {
       },
       include: {
         board: {
-          include: { postImage: true, like: true }
+          include: { boardImage: true, like: true }
         }
       }
     });
@@ -91,14 +77,52 @@ export class BoardRepository {
   }
 
   // 게시물 수정
-  async updateBoard(params: {
-    where: Prisma.BoardWhereUniqueInput;
-    data: Prisma.BoardUpdateInput;
-  }): Promise<Board> {
+  async updateBoard(id: number, editBoardDto: EditBoardDto): Promise<Board> {
+    const { title, content } = editBoardDto;
+
     return this.prismaService.board.update({
-      where: params.where,
-      data: params.data,
+      where: { id },
+      data: {
+        title,
+        content,
+      },
     });
   }
 
+  // 게시물 검색 태그도 검색
+  async searchBoard(keyword: string): Promise<Board[]> {
+    return this.prismaService.board.findMany({
+      where: {
+        OR: [
+          {
+            title: { contains: keyword, },
+          },
+          {
+            content: { contains: keyword, },
+          },
+          {
+            board_tag: {
+              some: {
+                tag: { name: { contains: keyword, }, },
+              },
+            },
+          },
+        ],
+      },
+      include: { user: true, },
+    });
+  }
+
+  async updateViews(id: number) {
+    await this.prismaService.board.update({
+      where: {
+        id: id
+      },
+      data: {
+        views: {
+          increment: 1
+        }
+      }
+    })
+  }
 }

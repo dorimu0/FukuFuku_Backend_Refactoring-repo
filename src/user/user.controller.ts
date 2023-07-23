@@ -51,8 +51,8 @@ export class UserController {
   async editIntroduction(@Body('data') updateData: UpdateUserIntroductionDto) {
     const result = await this.userService.editIntroduction(updateData);
 
-    return responseFormat(OK, result);
-  }
+  //   return responseFormat(OK, result);
+  // }
 
   // 회원 탈퇴
   @IsAuthenticable(UserRoleGuard, 'author', 'id')

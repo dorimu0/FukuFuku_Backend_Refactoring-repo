@@ -2,6 +2,7 @@ import { Injectable, NotFoundException, UnprocessableEntityException, Unsupporte
 import { Board } from '@prisma/client';
 import { BoardRepository } from './board.repository';
 import { CreateBoardDto } from './dto/create-board.dto';
+import { EditBoardDto } from './dto/edit-board.dto';
 import { PostImageRepository } from './boardImage.repository';
 import { CreatePostImageDto } from './dto/create-Image.dto';
 @Injectable()
@@ -69,31 +70,22 @@ export class BoardsService {
   }
 
   // 한 번에 업데이트 할 수 있음
-  updateBoardContent(id: number, content: string): Promise<Board> {
-    return this.postRepository.updateBoard({ where: { id }, data: { content } });
-  }
-  updateBoardTitle(id: number, title: string): Promise<Board> {
-    return this.postRepository.updateBoard({ where: { id }, data: { title } });
+  updateBoardContent(id: number, editBoardDto: EditBoardDto): Promise<Board> {
+    return this.postRepository.updateBoard(id, editBoardDto);
   }
 
-  // 이미지 업로드 - 게시글 id 로 생성
-  async uploadImage(id: CreatePostImageDto, req) {
-    // 이미지 파일 보내지 않은 경우
-    const fileValidationError = req.fileValidationError;
-    if (fileValidationError !== 'format does fit') {
-      throw new UnprocessableEntityException();
-    }
-    // 이미지 파일 형식이 맞지 않은 경우
-    else if (fileValidationError === "format doesn't fit") {
-      throw new UnsupportedMediaTypeException();
-    }
-    // url 가져오기
-    const url: string = req.files[0].location;
-
-    const image = await this.postImageRepository.createImage({ url, id });
-
-    // return image;
+  updateBoardTitle(id: number, editBoardDto: EditBoardDto): Promise<Board> {
+    return this.postRepository.updateBoard(id, editBoardDto);
   }
+
+  updateBoard(id: number, editBoardDto: EditBoardDto): Promise<Board> {
+    return this.postRepository.updateBoard(id, editBoardDto);
+  }
+
+  async searchBoard(keyword: string): Promise<Board[]> {
+    return this.postRepository.searchBoard(keyword);
+  }
+
   // 이미지 삭제 - url 로 찾아서 삭제
   async removeImage(url: string) { }
 
