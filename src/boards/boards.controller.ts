@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
   Param,
   ParseIntPipe,
   Patch,
@@ -12,7 +13,9 @@ import {
 import { Board } from '@prisma/client';
 import { BoardsService } from './boards.service';
 import { CreateBoardDto } from './dto/create-board.dto';
-import { EditBoardDto } from './dto/edit-board.dto';
+import { UpdateBoardDto } from './dto/update-board.dto';
+import { IsAuthenticable } from 'src/common/decorators/authentic.decorator';
+import { UserRoleGuard } from 'src/common/guard/role.guard';
 
 @Controller('boards')
 export class BoardsController {
@@ -38,28 +41,31 @@ export class BoardsController {
   }
 
   // 게시물 생성
-  // @UseGuards(AccessGuard)
+  @IsAuthenticable(UserRoleGuard, 'author', 'id')
+  @HttpCode(201)
   @Post()
   createBoard(
-    @Body() createPostDto: CreateBoardDto,
+    @Body('data') createPostDto: CreateBoardDto,
     // @Request() req,
   ): Promise<Board> {
     return this.postsService.createBoard(createPostDto);
   }
 
   // 게시물 삭제
+  @IsAuthenticable(UserRoleGuard, 'author', 'id')
+  @HttpCode(204)
   @Delete('/:id')
-  deleteBoard(@Param('id', ParseIntPipe) id: number): Promise<Board> {
+  deleteBoard(@Param('id', ParseIntPipe) id: number) {
     return this.postsService.deleteBoard(id);
   }
 
-  // 글 내용 수정
+  // 글 수정
+  @IsAuthenticable(UserRoleGuard, 'author', 'id')
   @Patch('/:id')
   updateBoard(
     @Param('id', ParseIntPipe) id: number,
-    @Body() editBoardDto: EditBoardDto,
+    @Body('boardData') editBoardDto: UpdateBoardDto,
   ): Promise<Board> {
-    return this.postsService.updateBoardContent(id, content);
     return this.postsService.updateBoard(id, editBoardDto);
   }
 
