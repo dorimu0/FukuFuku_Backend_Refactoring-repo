@@ -62,7 +62,7 @@ export class UserRepository {
       },
       select: {
         board: {
-          include: { postImage: true, like: true }
+          include: { boardImage: true, like: true }
         }
       }
     });
