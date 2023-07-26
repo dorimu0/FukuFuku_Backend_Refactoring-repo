@@ -1,12 +1,13 @@
-import { IsNotEmpty } from '@nestjs/class-validator';
+import { IsNotEmptyString } from 'src/common/decorators/is-not-empty-string.decorator';
+import { IsNotEmptyNumber } from 'src/common/decorators/is-not-empty-number.decorator';
 
 export class CreateBoardDto {
-  @IsNotEmpty()
-  title: string;
+  @IsNotEmptyString()
+  readonly title: string;
 
-  @IsNotEmpty()
-  content: string;
+  @IsNotEmptyString()
+  readonly content: string;
 
-  @IsNotEmpty()
-  u_id: number;
+  @IsNotEmptyNumber()
+  readonly id: number; // 유저의 id를 여기에 추가해야합니다.
 }
