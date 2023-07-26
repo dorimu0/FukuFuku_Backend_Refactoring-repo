@@ -14,11 +14,11 @@ export class Role {
       const userInfo = this.getUserInfo(request, option);
 
       const clientInfo = this.getClientId(request);
-      
+
       return clientInfo == userInfo;
     } catch (error) {
       const isAuthor = this.isAuthorByHeader(request);
-      
+
       if (isAuthor) {
         return true;
       }
@@ -32,7 +32,7 @@ export class Role {
     const id = parseInt(this.getClientId(request));
 
     // 관리자 인지 확인
-    const userInfo = await this.userService.findUser({id});
+    const userInfo = await this.userService.findUser({ id });
 
     if (userInfo.isAdmin !== null) {
       return true;
@@ -49,16 +49,16 @@ export class Role {
       return data['u_id']
     }
 
-    return data.where[option];
+    return data?.where ? data.where[option] : data[option];
   }
 
   // req 의 헤더에 token 디코딩, id 값 추출
   getClientId(request: Request): string {
-    const [type, token] = request.headers.authorization.split(' ') ?? [];
+    const token = request.headers.authorization.split(' ')[1];
     const decoded = this.jwtService.decode(token);
     return decoded['id'];
   }
-  
+
   // 헤더의 정보로 확인
   isAuthorByHeader(request: Request) {
     const clientInfo = this.getClientId(request);
