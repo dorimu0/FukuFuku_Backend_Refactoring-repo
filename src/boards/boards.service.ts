@@ -2,7 +2,7 @@ import { Injectable, NotFoundException, UnprocessableEntityException, Unsupporte
 import { Board } from '@prisma/client';
 import { BoardRepository } from './board.repository';
 import { CreateBoardDto } from './dto/create-board.dto';
-import { EditBoardDto } from './dto/edit-board.dto';
+import { UpdateBoardDto } from './dto/update-board.dto';
 import { PostImageRepository } from './boardImage.repository';
 import { CreatePostImageDto } from './dto/create-Image.dto';
 @Injectable()
@@ -57,28 +57,21 @@ export class BoardsService {
     return usersBoards;
   }
 
-  // 게시글 생성
+  // 게시글 생성 - 추가적으로 boardImage 테이블의 값들과 연결해야함
   async createBoard(createPostDto: CreateBoardDto): Promise<Board> {
-    const board = await this.postRepository.create(createPostDto);
-
-    return board;
+    return this.postRepository.create(createPostDto);
   }
 
-
-  deleteBoard(id: number): Promise<Board> {
-    return this.postRepository.deleteBoard({ id });
+  // 게시글 삭제 - 추가적으로 s3 도 삭제 해야함
+  async deleteBoard(id: number) {
+    try {
+      await this.postRepository.deleteBoard({ id });
+    } catch (error) {
+      throw new NotFoundException();
+    }
   }
 
-  // 한 번에 업데이트 할 수 있음
-  updateBoardContent(id: number, editBoardDto: EditBoardDto): Promise<Board> {
-    return this.postRepository.updateBoard(id, editBoardDto);
-  }
-
-  updateBoardTitle(id: number, editBoardDto: EditBoardDto): Promise<Board> {
-    return this.postRepository.updateBoard(id, editBoardDto);
-  }
-
-  updateBoard(id: number, editBoardDto: EditBoardDto): Promise<Board> {
+  updateBoard(id: number, editBoardDto: UpdateBoardDto): Promise<Board> {
     return this.postRepository.updateBoard(id, editBoardDto);
   }
 
@@ -87,10 +80,5 @@ export class BoardsService {
   }
 
   // 이미지 삭제 - url 로 찾아서 삭제
-  async removeImage(url: string) { }
-
-  
-
-  // 좋아요 누른 글 불러오기
-  getLikedBoards() { }
+  // async removeImage(url: string) { }
 }
