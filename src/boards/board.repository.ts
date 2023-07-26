@@ -2,8 +2,9 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
 import { Board, Prisma } from '@prisma/client';
 import { CreateBoardDto } from './dto/create-board.dto';
-import { EditBoardDto } from './dto/edit-board.dto';
+import { UpdateBoardDto } from './dto/update-board.dto';
 const TAKE = 10;
+
 @Injectable()
 export class BoardRepository {
   constructor(private readonly prismaService: PrismaService) { }
@@ -17,7 +18,8 @@ export class BoardRepository {
       include: {
         boardImage: { select: { url: true } },
         user: { select: { id: true, nickName: true } },
-        like: true
+        like: true,
+        board_tag: { select: { tag: true } }
       }
     });
   }
@@ -34,6 +36,7 @@ export class BoardRepository {
         like: { select: { u_id: true } },
         comment: { include: { user: true, reply: true } },
         user: { select: { picture: true, nickName: true } },
+        board_tag: { select: { tag: true } }
       },
     });
 
@@ -48,7 +51,11 @@ export class BoardRepository {
       },
       include: {
         board: {
-          include: { boardImage: true, like: true }
+          include: {
+            boardImage: true,
+            like: true,
+            board_tag: { select: { tag: true } }
+          },
         }
       }
     });
@@ -77,7 +84,7 @@ export class BoardRepository {
   }
 
   // 게시물 수정
-  async updateBoard(id: number, editBoardDto: EditBoardDto): Promise<Board> {
+  async updateBoard(id: number, editBoardDto: UpdateBoardDto): Promise<Board> {
     const { title, content } = editBoardDto;
 
     return this.prismaService.board.update({
@@ -109,7 +116,18 @@ export class BoardRepository {
           },
         ],
       },
-      include: { user: true, },
+      include: {
+        user: {
+          select: {
+            id: true,
+            picture: true,
+            nickName: true
+          }
+        },
+        board_tag: {
+          select: { tag: true }
+        }
+      },
     });
   }
 
