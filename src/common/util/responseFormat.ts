@@ -18,6 +18,6 @@ export const Created: CustomResponse = {
 }
 
 export const NoContent: CustomResponse = {
-  statusCode: 201,
+  statusCode: 204,
   message: 'No Content',
 }

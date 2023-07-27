@@ -8,10 +8,10 @@ export class BoardTagRepository {
   constructor(private prismaService: PrismaService) {}
 
   // boardId를 통해 태그 ID 만 가져오기
-  async findTagIdByBoardId(boardId: number): Promise<number[]> {
+  async findTagIdByBoardId(b_id: number): Promise<number[]> {
     const boardTags = await this.prismaService.board_Tag.findMany({
       where: {
-        boardId,
+        b_id,
       },
       select: {
         tagId: true,
@@ -23,21 +23,21 @@ export class BoardTagRepository {
 
   // 태그 생성
   async createBoardTags(boardTagDto: BoardTagDto): Promise<Board_Tag> {
-    const { boardId, tagId } = boardTagDto;
+    const { b_id, tagId } = boardTagDto;
 
     return await this.prismaService.board_Tag.create({
       data: {
-        boardId,
+        b_id,
         tagId,
       },
     });
   }
 
   // 게시물 id로 태그 삭제
-  async deleteBoardTags(boardId: number): Promise<void> {
+  async deleteBoardTags(b_id: number): Promise<void> {
     await this.prismaService.board_Tag.deleteMany({
       where: {
-        boardId,
+        b_id,
       },
     });
   }
