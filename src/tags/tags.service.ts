@@ -12,6 +12,11 @@ export class TagsService {
     return await this.tagRepository.findTagById(tagId);
   }
 
+  // 태그 이름으로 태그 가져오기
+  async findTagByName(tagName: string): Promise<Tag> {
+    return await this.tagRepository.findTagByName(tagName);
+  }
+
   // 태그 생성
   async createTags(tagDto: TagDto): Promise<Tag> {
     return await this.tagRepository.createTags(tagDto);
