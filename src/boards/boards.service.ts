@@ -1,19 +1,23 @@
-import { Injectable, NotFoundException, UnprocessableEntityException, UnsupportedMediaTypeException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  UnprocessableEntityException,
+} from '@nestjs/common';
 import { Board } from '@prisma/client';
 import { BoardRepository } from './board.repository';
 import { CreateBoardDto } from './dto/create-board.dto';
 import { UpdateBoardDto } from './dto/update-board.dto';
 import { PostImageRepository } from './boardImage.repository';
-import { CreatePostImageDto } from './dto/create-Image.dto';
+
 @Injectable()
 export class BoardsService {
   constructor(
     private readonly postRepository: BoardRepository,
-    private readonly postImageRepository: PostImageRepository) { }
+    private readonly postImageRepository: PostImageRepository,
+  ) {}
 
   // 게시판 가져오기
   async getAllBoards(option: string = undefined): Promise<Board[]> {
-
     let searchOption: object | [] = [
       { id: 'desc' },
       { like: { _count: 'desc' } },
@@ -22,17 +26,10 @@ export class BoardsService {
     if (option === 'recent') {
       searchOption = {
         id: 'desc',
-      }
-    }
-
-    else if (option === 'trendy') {
-      searchOption = [
-        { id: 'desc' },
-        { views: 'desc' }
-      ]
-    }
-    
-    else if (option) {
+      };
+    } else if (option === 'trendy') {
+      searchOption = [{ id: 'desc' }, { views: 'desc' }];
+    } else if (option) {
       throw new UnprocessableEntityException();
     }
 
