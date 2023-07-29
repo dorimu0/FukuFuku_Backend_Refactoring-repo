@@ -3,13 +3,17 @@ import { Type } from 'class-transformer';
 import { IntersectionType, PickType } from '@nestjs/mapped-types';
 import { IsNotEmptyString } from 'src/common/decorators/is-not-empty-string.decorator';
 import { CreateUserDto } from './create-user.dto';
+import { IsNotEmptyNumber } from 'src/common/decorators/is-not-empty-number.decorator';
 
-class UserUpdateWhere extends PickType(CreateUserDto, ['email'] as const) {}
+class UserUpdateWhere {
+  @IsNotEmptyNumber()
+  id: number;
+}
 
-class UserUpdatePicture extends PickType(CreateUserDto, [
-  'email',
+class UserUpdatePicture extends PickType(CreateUserDto, [,
   'picture',
-] as const) {}
+] as const){
+}
 
 class UserUpdateNickName {
   @IsNotEmptyString()

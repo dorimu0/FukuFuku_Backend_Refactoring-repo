@@ -1,9 +1,11 @@
-import { PickType } from "@nestjs/mapped-types";
-import { CreateUserDto } from "./create-user.dto";
 import { ValidateNested } from "class-validator";
 import { Type } from "class-transformer";
+import { IsNotEmptyNumber } from "src/common/decorators/is-not-empty-number.decorator";
 
-class UserDeleteWhere extends PickType(CreateUserDto, ['email'] as const) {}
+class UserDeleteWhere {
+  @IsNotEmptyNumber()
+  id: number;
+}
 
 export class UserDeleteWhereDto {
   @ValidateNested({ each: true })

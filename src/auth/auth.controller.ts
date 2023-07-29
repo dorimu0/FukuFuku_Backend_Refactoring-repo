@@ -9,7 +9,6 @@ import {
   HttpCode,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { AccessGuard } from '../common/guard/access.guard';
 import { RefreshGuard } from 'src/common/guard/refresh.guard';
 import { AuthService } from './auth.service';
 import { config } from 'dotenv';

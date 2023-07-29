@@ -1,27 +1,24 @@
-import {
-  ConflictException,
-  Injectable,
-  Body,
-  UnprocessableEntityException,
-  UnsupportedMediaTypeException,
-} from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException, UnprocessableEntityException, UnsupportedMediaTypeException } from '@nestjs/common';
 import { UserRepository } from './user.repository';
 import { CreateUserDto } from './dto/create-user.dto';
 import {
   UpdateUserIntroductionDto,
   UpdateUserNicknameDto,
-  UpdateCommonWhere as UpdateUserDto,
 } from './dto/update-user.dto';
 import { UserDeleteWhereDto } from './dto/delete-user.dto';
 import { deleteObject } from '../common/util/deleteObjectFromS3';
-import { S3Client } from '@aws-sdk/client-s3';
-import { User } from '@prisma/client';
 
 @Injectable()
 export class UserService {
-  constructor(private readonly userRepository: UserRepository) {}
+  constructor(
+    private readonly userRepository: UserRepository,
+  ) { }
 
-  findUser(uniqueValue: { email?: string; nickName?: string } = {}) {
+  findUser(uniqueValue: {
+    id?: number,
+    email?: string,
+    nickName?: string
+  }) {
     return this.userRepository.findOne(uniqueValue);
   }
 
@@ -80,41 +77,40 @@ export class UserService {
   }
 
   // 자기 소개 수정
-  // async editIntroduction(updateUserIntroductionDto: UpdateUserIntroductionDto) {
-  //   const userInfo = await this.userRepository.updateUser(
-  //     updateUserIntroductionDto,
-  //   );
-  //   return { introduction: userInfo.introduction };
-  // }
+  async editIntroduction(updateUserIntroductionDto: UpdateUserIntroductionDto) {
+    const userInfo = await this.userRepository.updateUser(
+      updateUserIntroductionDto,
+    );
+    return { introduction: userInfo.introduction };
+  }
 
   // 회원 탈퇴
   async withdraw(userInfo: UserDeleteWhereDto) {
     const result = await this.userRepository.deleteUser({
-      email: userInfo.where.email,
+      id: userInfo.where.id,
     });
     return result;
   }
 
   // 이미지 수정
-  async editPicture(updateUserDto, req) {
+  async editPicture(id, req) {
     // 이미지 파일 보내지 않은 경우
-    const fileValidationError = req.fileValidationError;
-    if (fileValidationError !== 'format does fit') {
-      console.log(fileValidationError);
-      console.log('%%');
-      throw new UnprocessableEntityException();
+    if (!req?.file) {
+      throw new UnprocessableEntityException('No file');
     }
+    const fileValidationError = req.fileValidationError;
     // 이미지 파일 형식이 맞지 않은 경우
-    else if (fileValidationError === "format doesn't fit") {
+    if (fileValidationError === "format doesn't fit") {
       throw new UnsupportedMediaTypeException();
     }
-    // 이미지 저장 후 url 가져오기
-    const picture = req?.files[0].location;
-    const email = updateUserDto;
-    const updateUserPictureDto = { where: { email }, data: { picture } };
+    // url 가져오기
+    const picture = req.file.location;
+    const updateUserPictureDto = { where: { id }, data: { picture } };
 
     // 기존 S3 이미지 삭제
-    const previousUserInfo = await this.userRepository.findOne({ email });
+    const previousUserInfo = await this.userRepository.findOne({ id });
+    if (previousUserInfo !== null) {
+    }
     const key = previousUserInfo.picture;
 
     // S3 이미지 형식일때 삭제
@@ -128,7 +124,12 @@ export class UserService {
     return { picture: userInfo.picture };
   }
 
-  async getUserById(id: number): Promise<User> {
-    return this.userRepository.getUserById(id);
+  // 마이페이지 이동
+  async mypage(nickName: string) {
+    // 유저 닉네임으로 조회 - 닉네임은 기본적으로 email과 같은 값을 가지도록 해 참조하지 못하는 일은 생기지 않을 것임
+    const userPage = await this.userRepository.getUserPage(nickName);
+    
+    if (!userPage.length) throw new NotFoundException();
+    return userPage;
   }
 }
