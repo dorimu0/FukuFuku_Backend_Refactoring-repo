@@ -1,15 +1,20 @@
-import { Injectable, NotFoundException, UnprocessableEntityException, UnsupportedMediaTypeException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  UnprocessableEntityException,
+} from '@nestjs/common';
 import { Board } from '@prisma/client';
 import { BoardRepository } from './board.repository';
 import { CreateBoardDto } from './dto/create-board.dto';
 import { UpdateBoardDto } from './dto/update-board.dto';
 import { PostImageRepository } from './boardImage.repository';
-import { CreatePostImageDto } from './dto/create-Image.dto';
+
 @Injectable()
 export class BoardsService {
   constructor(
     private readonly postRepository: BoardRepository,
-    private readonly postImageRepository: PostImageRepository) { }
+    private readonly postImageRepository: PostImageRepository,
+  ) {}
 
   // 게시판 가져오기 - 조회 순서 옵션, 날짜 옵션
   async getAllBoards(
