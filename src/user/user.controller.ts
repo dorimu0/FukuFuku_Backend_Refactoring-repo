@@ -25,14 +25,23 @@ import { AccessGuard } from 'src/common/guard/access.guard';
 import { UserRoleGuard } from 'src/common/guard/role.guard';
 @Controller('user')
 export class UserController {
-  constructor(private readonly userService: UserService) {}
-
+  constructor(private readonly userService: UserService) { }
+  
   // 닉네임 중복 체크
   @UseGuards(AccessGuard)
   @Get('/check/:nickName')
   async isExistNickname(@Param('nickName') nickname: string) {
     await this.userService.nicknameDuplicateCheck(nickname, 'request');
     return responseFormat(OK);
+  }
+
+  // 좋아요 누른 글 불러오기 - mypage
+  @UseGuards(AccessGuard)
+  @Get('/liked')
+  async myLiked(@Body('client') client: string | {
+    [key: string]: any;
+  }) {
+    return this.userService.myLiked(client);
   }
 
   // 닉네임 수정
@@ -76,7 +85,6 @@ export class UserController {
     return responseFormat(OK, result);
   }
 
-  // 자신이 쓴 글 검색
   // 유저 페이지로 이동
   @Get('/:nickName')
   async userPage(@Param('nickName') nickName: string) {
@@ -84,9 +92,4 @@ export class UserController {
     return userPage;
   }
 
-  // 좋아요 누른 글 불러오기 - mypage
-  @Get()
-  async myLiked() {
-    
-  }
 }
