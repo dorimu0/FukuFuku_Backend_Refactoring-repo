@@ -14,7 +14,8 @@ export class BoardRepository {
 
     return this.prismaService.board.findMany({
       take: TAKE,
-      orderBy: searchOption,
+      where: searchOption['where'],
+      orderBy: searchOption['orderBy'],
       include: {
         boardImage: { select: { url: true } },
         user: { select: { id: true, nickName: true } },
@@ -35,7 +36,7 @@ export class BoardRepository {
       include: {
         like: { select: { u_id: true } },
         comment: { include: { user: true, reply: true } },
-        user: { select: { picture: true, nickName: true } },
+        user: { select: { picture: true, nickName: true, introduction: true } },
         board_tag: { select: { tag: true } }
       },
     });
@@ -97,25 +98,9 @@ export class BoardRepository {
   }
 
   // 게시물 검색 태그도 검색
-  async searchBoard(keyword: string): Promise<Board[]> {
+  async searchBoard(where: Prisma.BoardWhereInput): Promise<Board[]> {
     return this.prismaService.board.findMany({
-      where: {
-        OR: [
-          {
-            title: { contains: keyword, },
-          },
-          {
-            content: { contains: keyword, },
-          },
-          {
-            board_tag: {
-              some: {
-                tag: { name: { contains: keyword, }, },
-              },
-            },
-          },
-        ],
-      },
+      where,
       include: {
         user: {
           select: {
@@ -131,6 +116,7 @@ export class BoardRepository {
     });
   }
 
+  // 조회 수 올리기
   async updateViews(id: number) {
     await this.prismaService.board.update({
       where: {

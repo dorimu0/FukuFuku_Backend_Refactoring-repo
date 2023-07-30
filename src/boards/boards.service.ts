@@ -11,29 +11,40 @@ export class BoardsService {
     private readonly postRepository: BoardRepository,
     private readonly postImageRepository: PostImageRepository) { }
 
-  // 게시판 가져오기
-  async getAllBoards(option: string = undefined): Promise<Board[]> {
+  // 게시판 가져오기 - 조회 순서 옵션, 날짜 옵션
+  async getAllBoards(
+    option: 'recent' | 'trendy' = undefined,
+    createdAt: {
+      gte: string | Date,
+      lte: string | Date,
+    } = undefined
+  ): Promise<Board[]> {
 
-    let searchOption: object | [] = [
-      { id: 'desc' },
-      { like: { _count: 'desc' } },
-    ];
+    let searchOption: object = {
+      orderBy: [
+        { id: 'desc' },
+        { like: { _count: 'desc' }, }
+      ]
+    };
 
     if (option === 'recent') {
-      searchOption = {
-        id: 'desc',
-      }
+      searchOption['orderBy'] = [
+        { id: 'desc' }
+      ]
     }
 
-    else if (option === 'trendy') {
-      searchOption = [
+    else {
+      searchOption['orderBy'] = [
         { id: 'desc' },
         { views: 'desc' }
       ]
     }
-    
-    else if (option) {
-      throw new UnprocessableEntityException();
+
+    // 값이 두 개 다 들어온 경우에만 적용
+    if (createdAt) {
+      createdAt.gte = new Date(createdAt.gte);
+      createdAt.lte = new Date(createdAt.lte);
+      searchOption['where'] = { createdAt };
     }
 
     return this.postRepository.getAllBoards(searchOption);
@@ -71,12 +82,36 @@ export class BoardsService {
     }
   }
 
-  updateBoard(id: number, editBoardDto: UpdateBoardDto): Promise<Board> {
-    return this.postRepository.updateBoard(id, editBoardDto);
+  updateBoard(id: number, updateBoardDto: UpdateBoardDto): Promise<Board> {
+    return this.postRepository.updateBoard(id, updateBoardDto);
   }
 
-  async searchBoard(keyword: string): Promise<Board[]> {
-    return this.postRepository.searchBoard(keyword);
+  // 게시글 검색
+  async searchBoard(keyword: string, nickName: string = undefined): Promise<Board[]> {
+    const searchOption = {
+      OR: [
+        {
+          title: { contains: keyword, },
+        },
+        {
+          content: { contains: keyword, },
+        },
+        {
+          board_tag: {
+            some: {
+              tag: { name: { contains: keyword, }, },
+            },
+          },
+        },
+      ],
+    }
+
+    if (nickName) {
+      const AND = [{ user: { nickName } }];
+      searchOption['AND'] = AND;
+    }
+
+    return this.postRepository.searchBoard(searchOption);
   }
 
   // 이미지 삭제 - url 로 찾아서 삭제
