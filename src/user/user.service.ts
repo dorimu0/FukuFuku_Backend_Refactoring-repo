@@ -14,7 +14,7 @@ export class UserService {
     private readonly userRepository: UserRepository,
   ) { }
 
-  findUser(uniqueValue: {
+  async findUser(uniqueValue: {
     id?: number,
     email?: string,
     nickName?: string

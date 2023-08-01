@@ -12,7 +12,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
     private readonly gOauthService: GOauthService,
-  ) {}
+  ) { }
 
   async signByGOuth(req) {
     const googleUserInfo: User = this.gOauthService.googleLogin(req);
@@ -43,23 +43,27 @@ export class AuthService {
 
   async refresh(tokens) {
     try {
-      const emailFromAccessToken = this.jwtService.decode(
+      const accessPayload = this.jwtService.decode(
         tokens.accessToken,
       );
-      const emailFromRefreshToken = this.jwtService.decode(
+      const refreshPayload = this.jwtService.decode(
         tokens.refreshToken,
       );
 
       // access token, refresh token의 발행 정보를 대조
-      if (emailFromAccessToken === null || emailFromRefreshToken === null) {
+      if (accessPayload === null || refreshPayload === null) {
         return false;
       }
-      if (emailFromAccessToken['email'] !== emailFromRefreshToken['email']) {
+
+      const isAuthenticable =
+        accessPayload['id'] !== refreshPayload['id'] && accessPayload['nickName'] !== refreshPayload['nickName']
+
+      if (isAuthenticable) {
         return false;
       }
 
       const userInfo = await this.userService.findUser(
-        emailFromRefreshToken['email'],
+        { nickName: refreshPayload['nickName'] }
       );
 
       const newAccesstoken = await this.generateToken(
@@ -80,8 +84,8 @@ export class AuthService {
     expiresIn: string,
   ): Promise<string> {
     const payload = {
-      id: `${userInfo.id}`,
-      email: userInfo.email
+      nickName: userInfo.nickName,
+      id: userInfo.id
     };
 
     const token = await this.jwtService.signAsync(payload, {
