@@ -7,11 +7,10 @@ const TAKE = 10;
 
 @Injectable()
 export class BoardRepository {
-  constructor(private readonly prismaService: PrismaService) { }
+  constructor(private readonly prismaService: PrismaService) {}
 
   /** 게시판 가져오기 */
   async getAllBoards(searchOption: object | [] = undefined): Promise<Board[]> {
-
     return this.prismaService.board.findMany({
       take: TAKE,
       where: searchOption['where'],
@@ -20,8 +19,8 @@ export class BoardRepository {
         boardImage: { select: { url: true } },
         user: { select: { id: true, nickName: true, picture: true } },
         like: true,
-        board_tag: { select: { tag: true } }
-      }
+        board_tag: { select: { tag: true } },
+      },
     });
   }
 
@@ -31,7 +30,7 @@ export class BoardRepository {
   ) {
     return this.prismaService.board.findFirst({
       where: {
-        id: userWhereUniqueInput
+        id: userWhereUniqueInput,
       },
       include: {
         like: { select: { u_id: true } },
@@ -47,17 +46,17 @@ export class BoardRepository {
   async getUsersBoards(id: number) {
     return this.prismaService.user.findMany({
       where: {
-        id: id
+        id: id,
       },
       include: {
         board: {
           include: {
             boardImage: true,
             like: true,
-            board_tag: { select: { tag: true } }
+            board_tag: { select: { tag: true } },
           },
-        }
-      }
+        },
+      },
     });
   }
 
@@ -68,9 +67,9 @@ export class BoardRepository {
         title: createPostDto.title,
         content: createPostDto.content,
         user: {
-          connect: { id: createPostDto.id }
+          connect: { id: createPostDto.id },
         },
-      }
+      },
     });
 
     return board;
@@ -79,7 +78,7 @@ export class BoardRepository {
   /** 게시글 삭제 */
   async deleteBoard(where: Prisma.BoardWhereUniqueInput): Promise<Board> {
     return this.prismaService.board.delete({
-      where
+      where,
     });
   }
 
@@ -105,12 +104,12 @@ export class BoardRepository {
           select: {
             id: true,
             picture: true,
-            nickName: true
-          }
+            nickName: true,
+          },
         },
         board_tag: {
-          select: { tag: true }
-        }
+          select: { tag: true },
+        },
       },
     });
   }
@@ -119,13 +118,13 @@ export class BoardRepository {
   async updateViews(id: number) {
     await this.prismaService.board.update({
       where: {
-        id: id
+        id: id,
       },
       data: {
         views: {
-          increment: 1
-        }
-      }
-    })
+          increment: 1,
+        },
+      },
+    });
   }
 }

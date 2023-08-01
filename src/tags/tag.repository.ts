@@ -16,6 +16,26 @@ export class TagRepository {
     });
   }
 
+  // 태그 이름으로 태그 가져오기
+  async findTagByName(tagName: string): Promise<Tag> {
+    return await this.prismaService.tag.findUnique({
+      where: {
+        name: tagName,
+      },
+      include: {
+        board_tag: {
+          include: {
+            board: {
+              include: {
+                user: true,
+              },
+            },
+          },
+        },
+      },
+    });
+  }
+
   // 태그 생성
   async createTags(tagDto: TagDto): Promise<Tag> {
     const { name } = tagDto;
