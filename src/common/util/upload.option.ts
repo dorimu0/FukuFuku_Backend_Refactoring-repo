@@ -30,9 +30,9 @@ export const uploadOption = {
     bucket: process.env.S3_BUCKET_NAME,
     contentType: multerS3.AUTO_CONTENT_TYPE,
     key: function (req, file, callback) {
-      const type = file.mimetype.split('/');
+      const type = file.mimetype.split('/')[1];
       const fileId = generate();
-      const fileName = `${new Date().getUTCFullYear()}/${new Date().getUTCMonth() + 1}/${fileId}${type}`;
+      const fileName = `${new Date().getUTCFullYear()}/${new Date().getUTCMonth() + 1}/${fileId}.${type}`;
       callback(null, fileName);
     },
     acl: 'public-read-write',
