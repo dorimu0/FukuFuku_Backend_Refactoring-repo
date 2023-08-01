@@ -66,6 +66,7 @@ model BoardImage {
   b_id  Int
   board Board  @relation(fields: [b_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
   url   String @unique @db.VarChar(100)
+  key   String
 
   @@id([id, b_id])
 }
@@ -94,4 +95,11 @@ model Reply {
   user      User    @relation(fields: [u_id], references: [id], onDelete: Cascade)
 
   @@id([id, c_id])
+}
+
+model Image {
+  url String @db.VarChar(100)
+  key String
+
+  @@id([url, key])
 }
