@@ -23,7 +23,7 @@ export class UserService {
   }
 
   async signUp(userDto: CreateUserDto) {
-    await this.userRepository.createUser(userDto);
+    return this.userRepository.createUser(userDto);
   }
 
   // refresh token 기간 끝 OR 가입
@@ -36,9 +36,7 @@ export class UserService {
     }
 
     // 가입되지 않은 경우 자동 가입
-    await this.signUp(userDto);
-
-    userInfo = await this.findUser({ email: userDto.email.split('@')[0] });
+    userInfo = await this.signUp(userDto);
 
     return userInfo;
   }
