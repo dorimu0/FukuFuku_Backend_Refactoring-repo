@@ -23,7 +23,7 @@ export class BoardsController {
   constructor(private postsService: BoardsService) { }
 
   // 특정 사용자가 쓴 글 내에서 검색
-  @Get('/:nickName')
+  @Get('user/:nickName')
   searchUsersBoard(
     @Param('nickName') nickName: string,
     @Query('keyword') keyword: string,
@@ -73,12 +73,11 @@ export class BoardsController {
 
   // 글 수정
   @IsAuthenticable(UserRoleGuard, 'author', 'id')
-  @Patch('/:id')
+  @Patch('/edit')
   updateBoard(
-    @Param('id', ParseIntPipe) id: number,
     @Body('boardData') editBoardDto: UpdateBoardDto,
   ): Promise<Board> {
-    return this.postsService.updateBoard(id, editBoardDto);
+    return this.postsService.updateBoard(editBoardDto);
   }
 
   // 게시물 검색
