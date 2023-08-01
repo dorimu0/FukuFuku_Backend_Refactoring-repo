@@ -10,6 +10,7 @@ import { ReplysModule } from './replys/replys.module';
 import { LikeModule } from './like/like.module';
 import { TagsModule } from './tags/tags.module';
 import { BoardTagsModule } from './board-tags/board-tags.module';
+import { UploadModule } from './upload/upload.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { BoardTagsModule } from './board-tags/board-tags.module';
     LikeModule,
     TagsModule,
     BoardTagsModule,
+    UploadModule,
   ],
   controllers: [AppController],
   providers: [AppService],
