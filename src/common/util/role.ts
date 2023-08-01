@@ -10,10 +10,9 @@ export class Role {
   isAuthor(request: Request, option: string): boolean {
     try {
       const userId = this.getUserInfo(request, option);
+      const clientId = request.body.client.id;
 
-      const clientId = parseInt(request.body.client.id);
-
-      return clientId === userId;
+      return clientId == userId;
     } catch (error) {
       const isAuthor = this.isAuthorByHeader(request);
 
@@ -41,13 +40,17 @@ export class Role {
 
   // jwt 를 디코딩한 결과 값과 body에 있는 값을비교
   getUserInfo(request: Request, option: string) {
-    const { data } = request.body
-    // 옵션에 따라 다른 인증 방식
-    if (option === 'u_id') {
-      return data['u_id']
-    }
+    try {
+      const { data } = request.body
+      // 옵션에 따라 다른 인증 방식
+      if (option === 'u_id') {
+        return data['u_id']
+      }
 
-    return data?.where ? data.where[option] : data[option];
+      return data?.where ? data.where[option] : data[option];
+    } catch (error) {
+      return request.headers.data;
+    }
   }
 
   // 헤더의 정보로 확인
