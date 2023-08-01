@@ -1,50 +1,48 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
-import { Prisma, BoardImage } from '@prisma/client';
-import { deleteObject } from 'src/common/util/deleteObjectFromS3';
 
 @Injectable()
 export class PostImageRepository {
   constructor(private readonly prismaService: PrismaService) { }
 
-  // 이미지 생성
-  async createImage(postimageCreateInput): Promise<BoardImage> {
-    const postImage = await this.prismaService.boardImage.create({
-      data: {
-        url: postimageCreateInput.url,
-        board: {
-          connect: {
-            id: postimageCreateInput.id
-          }
-        }
-      }
-    })
-    
-    return postImage;
-  }
-
-  // 이미지 삭제
-  async deleteImage(url: string) {
-    const deleteImage = await this.prismaService.boardImage.delete({
-      where: {
-        url: url
-      }
+  /** 이미지 연결 */
+  async connect(data: { b_id: number, url: string, key: string }[]): Promise<void> {
+    await this.prismaService.boardImage.createMany({
+      data
     });
-
-    // S3 이미지 삭제
-    deleteObject([url]);
   }
 
-  // 이미지 하나 url 가져오기 - 게시글 여러 개 불러올 때 사용
-  async getImage(id: number) {
-    const image = await this.prismaService.boardImage.findFirst({
+  /** 게시글의 모든 이미지 가져오기 */
+  async getImages(id: number) {
+    return this.prismaService.boardImage.findMany({
       where: {
         b_id: id
       }
     });
-    
-    return image;
   }
 
-  // 이미지 전체
+  /** 이미지의 key 값 가져오기 */
+  async getKeys(url: string) {
+    return this.prismaService.boardImage.findMany({
+
+    })
+  }
+
+  /** stored 이미지 인지 확인 */
+  async getTempImage(OR: {url: string, key: string}[]) {
+    return this.prismaService.image.findMany({
+      where: {
+        OR
+      }
+    });
+  }
+
+  /** stored 이미지 삭제 */
+  async deleteTempImage(OR: {url: string, key: string}[]) {
+    return this.prismaService.image.deleteMany({
+      where: {
+        OR
+      }
+    })
+  }
 }
