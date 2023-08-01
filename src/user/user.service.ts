@@ -38,7 +38,7 @@ export class UserService {
     // 가입되지 않은 경우 자동 가입
     await this.signUp(userDto);
 
-    userInfo = await this.findUser({ email: userDto.email });
+    userInfo = await this.findUser({ email: userDto.email.split('@')[0] });
 
     return userInfo;
   }
@@ -128,8 +128,16 @@ export class UserService {
   async mypage(nickName: string) {
     // 유저 닉네임으로 조회 - 닉네임은 기본적으로 email과 같은 값을 가지도록 해 참조하지 못하는 일은 생기지 않을 것임
     const userPage = await this.userRepository.getUserPage(nickName);
-    
+
     if (!userPage.length) throw new NotFoundException();
     return userPage;
+  }
+
+  // 사용자 본인이 좋아요 눌렀던 게시글 가져오기
+  async myLiked(client: string | {
+    [key: string]: any;
+  }) {
+    const id = parseInt(client['id']);
+    return this.userRepository.getLiked(id);
   }
 }

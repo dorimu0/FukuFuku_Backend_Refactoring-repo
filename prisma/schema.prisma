@@ -14,7 +14,7 @@ model User {
   firstName    String    @db.VarChar(10)
   lastName     String    @db.VarChar(15)
   isAdmin      Int?
-  nickName     String?   @db.VarChar(10)
+  nickName     String?   @db.VarChar(20)
   introduction String?   @db.VarChar(50)
   board        Board[]
   comment      Comment[]

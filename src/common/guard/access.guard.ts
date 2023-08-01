@@ -28,10 +28,10 @@ export class AccessGuard implements CanActivate {
         secret: this.configService.get<string>('JWT_ACCESS_SECRET'),
       });
 
-      const email = this.jwtService.decode(token);
+      const client = this.jwtService.decode(token);
 
       request['body']['acessToken'] = token;
-      request['body']['email'] = email;
+      request['body']['client'] = client;
     } catch (error) {
       switch (error?.name) {
         case 'TokenExpiredError':

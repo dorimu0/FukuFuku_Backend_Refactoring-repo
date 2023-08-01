@@ -16,15 +16,28 @@ import { CreateBoardDto } from './dto/create-board.dto';
 import { UpdateBoardDto } from './dto/update-board.dto';
 import { IsAuthenticable } from 'src/common/decorators/authentic.decorator';
 import { UserRoleGuard } from 'src/common/guard/role.guard';
+import { SearchBoardDto } from './dto/search-board.dto';
 
 @Controller('boards')
 export class BoardsController {
   constructor(private postsService: BoardsService) { }
 
+  // 특정 사용자가 쓴 글 내에서 검색
+  @Get('/:nickName')
+  searchUsersBoard(
+    @Param('nickName') nickName: string,
+    @Query('keyword') keyword: string,
+  ) {
+    return this.postsService.searchBoard(keyword, nickName);
+  }
+
   // 게시판 가져오기
   @Get()
-  getAllBoard(@Query('option') option: string): Promise<Board[]> {
-    return this.postsService.getAllBoards(option);
+  getAllBoard(
+    @Query() option: SearchBoardDto
+  ): Promise<Board[]> {
+    const dateOption = { gte: option.gte, lte: option.lte }
+    return this.postsService.getAllBoards(option.option, dateOption);
   }
 
   // 특정한 글 하나 가져오기
@@ -46,7 +59,6 @@ export class BoardsController {
   @Post()
   createBoard(
     @Body('data') createPostDto: CreateBoardDto,
-    // @Request() req,
   ): Promise<Board> {
     return this.postsService.createBoard(createPostDto);
   }

@@ -67,4 +67,18 @@ export class UserRepository {
       }
     });
   }
+
+  // 좋아요 누른 글 가져오기
+  async getLiked(id: number) {
+    return this.prisma.user.findMany({
+      where: { id },
+      select: {
+        like: {
+          select: {
+            board: true
+          }
+        }
+      }
+    })
+  }
 }
