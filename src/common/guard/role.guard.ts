@@ -40,7 +40,7 @@ export class UserRoleGuard extends Role implements CanActivate {
     // 요구되는 롤에 대한 요청자의 부합 여부
     const isAuthenticable = (requiredRoles === 'author')
       ? super.isAuthor(request, requiredOption)
-      : await super.isAdmin(request);    
+      : await super.isAdmin(request);
 
     if (!isAuthenticable) {
       throw new ForbiddenException();
