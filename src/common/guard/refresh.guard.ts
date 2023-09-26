@@ -67,6 +67,7 @@ export class RefreshGuard implements CanActivate {
 
   // 구글로그인 경로로 redirect
   async reLogin(response: Response) {
+    response.set('access-control-allow-origin', 'http://localhost:5173');
     const loginUrl = this.configService.get<string>('GOAUTH_RELOGIN_URL');
     response.redirect(loginUrl);
   }
