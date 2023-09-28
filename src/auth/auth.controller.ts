@@ -20,18 +20,12 @@ config();
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @Get()
-  @UseGuards(AuthGuard('google'))
-  googleAuth(@Req() req) {}
-
-  @Get(process.env.CALLBACK_PATH)
-  @UseGuards(AuthGuard('google'))
-  async googleAuthRedirect(@Req() req) {
-    const data = await this.authService.signByGOuth(req);
-    return responseFormat(OK, data);
+  @Post()
+  async googleAuth(@Body('credential') credential) {
+    const data = await this.authService.signByGOuth(credential);
+    return data;
   }
 
-  @HttpCode(201)
   @UseGuards(RefreshGuard)
   @Post('refresh')
   async refresh(@Request() req) {
