@@ -2,7 +2,6 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { UserService } from '../user/user.service';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import { GOauthService } from './g-oauth/g-oauth.service';
 import { User } from '@prisma/client';
 
 @Injectable()
@@ -11,11 +10,17 @@ export class AuthService {
     private readonly userService: UserService,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
-    private readonly gOauthService: GOauthService,
   ) { }
 
-  async signByGOuth(req) {
-    const googleUserInfo: User = this.gOauthService.googleLogin(req);
+  decodeBase64(credential: string) {
+    const base64Payload = credential.split('.')[1];
+    const payloadBuffer = Buffer.from(base64Payload, 'base64');
+    const updatedJwtPayload = JSON.parse(payloadBuffer.toString());
+    return updatedJwtPayload;
+  }
+
+  async signByGOuth(credential: string) {
+    const googleUserInfo: User = this.decodeBase64(credential);
 
     if (
       googleUserInfo.email.split('@')[1] !==

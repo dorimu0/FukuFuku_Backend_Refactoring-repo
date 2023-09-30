@@ -15,7 +15,7 @@ export class AccessGuard implements CanActivate {
   constructor(
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
-  ) {}
+  ) { }
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
@@ -33,18 +33,16 @@ export class AccessGuard implements CanActivate {
       request['body']['acessToken'] = token;
       request['body']['client'] = client;
     } catch (error) {
-      switch (error?.name) {
-        case 'TokenExpiredError':
-          throw new GoneException(error);
-        // 만료된 경우가 아닐 시에 로그인 redirect
-        default: {
-          const response = context.switchToHttp().getResponse();
-          this.reLogin(response);
-        }
+      if (error?.name === 'TokenExpiredError') {
+        throw new GoneException(error);
       }
+      // 만료된 경우가 아닐 시에 로그인 redirect
+      const response = context.switchToHttp().getResponse();
+      this.reLogin(response);
     }
     return true;
   }
+
 
   private extractTokenFromHeader(request: Request): string | undefined {
     try {
