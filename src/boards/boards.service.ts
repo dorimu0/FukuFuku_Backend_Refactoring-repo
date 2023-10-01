@@ -153,8 +153,13 @@ export class BoardsService {
 
   /** 이미지 저장 여부 확인 */
   async isStoredImage(createPostDto: CreateBoardDto) {
+    const isEnclude = createPostDto.images?.length;
+    if (!isEnclude) {
+      return true;
+    }
+
     const storedImages = await this.postImageRepository.getTempImage(createPostDto.images);
     
-    return storedImages.length === createPostDto.images.length;
+    return storedImages?.length === createPostDto.images?.length;
   }
 }
