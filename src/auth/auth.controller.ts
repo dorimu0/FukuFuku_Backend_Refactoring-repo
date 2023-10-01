@@ -6,9 +6,7 @@ import {
   Request,
   Body,
   Post,
-  HttpCode,
 } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
 import { RefreshGuard } from 'src/common/guard/refresh.guard';
 import { AuthService } from './auth.service';
 import { config } from 'dotenv';
