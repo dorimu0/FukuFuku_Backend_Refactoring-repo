@@ -19,7 +19,8 @@ export class BoardsService {
     createdAt: {
       gte: string | Date,
       lte: string | Date,
-    } = undefined
+    } = undefined,
+    page: number = 0
   ): Promise<Board[]> {
 
     let searchOption: object = {
@@ -48,7 +49,8 @@ export class BoardsService {
       createdAt.lte = new Date(createdAt.lte);
       searchOption['where'] = { createdAt };
     }
-    return this.postRepository.getAllBoards(searchOption);
+
+    return this.postRepository.getAllBoards(searchOption, page);
   }
 
   /** 특정한 글 하나 가져오기 */
@@ -71,16 +73,18 @@ export class BoardsService {
     return usersBoards;
   }
 
-  /** 게시글 생성, 이미지 연결, 업로드된 이미지가 DB에 없다면 에러 발생 */
+  /** 게시글 생성, 이미지 연결, 업로드된 이미지가 DB image 테이블에 없다면 에러 발생 */
   async createBoard(createPostDto: CreateBoardDto): Promise<Board> {
     const isStoredImage = await this.isStoredImage(createPostDto);
-    await this.postImageRepository.deleteTempImage(createPostDto.images);
-
+    
     // 저장된 이미지와 등록하려는 이미지가 다른 경우
     if (!isStoredImage) {
-      throw new BadRequestException('등록할 수 없는 이미지가 포함 되어 있습니다.')
+      throw new BadRequestException('등록할 수 없는 이미지가 포함 되어 있습니다.');
     }
 
+    // 임시저장한 곳에서 삭제
+    await this.postImageRepository.deleteTempImage(createPostDto.images);
+    
     const board = await this.postRepository.create(createPostDto);
 
     if (createPostDto?.images) {
@@ -159,7 +163,9 @@ export class BoardsService {
     }
 
     const storedImages = await this.postImageRepository.getTempImage(createPostDto.images);
-    
-    return storedImages?.length === createPostDto.images?.length;
+
+    // 유저가 제출한 이미지 목록과 같은지 확인
+    const isSavable = JSON.stringify(storedImages) === JSON.stringify(createPostDto.images);
+    return isSavable;
   }
 }

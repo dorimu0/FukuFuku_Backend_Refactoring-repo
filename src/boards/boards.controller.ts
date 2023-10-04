@@ -34,10 +34,10 @@ export class BoardsController {
   // 게시판 가져오기
   @Get()
   getAllBoard(
-    @Query() option: SearchBoardDto
+    @Query() option: SearchBoardDto,
   ): Promise<Board[]> {
-    const dateOption = { gte: option.gte, lte: option.lte }
-    return this.postsService.getAllBoards(option.option, dateOption);
+    const dateOption = { gte: option.gte, lte: option.lte };
+    return this.postsService.getAllBoards(option.option, dateOption, option.page);
   }
 
   // 특정한 글 하나 가져오기
