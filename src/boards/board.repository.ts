@@ -47,10 +47,10 @@ export class BoardRepository {
   }
 
   /** 유저가 작성한 글 가져오기 */
-  async getUsersBoards(id: number) {
+  async getUsersBoards(nickName: string) {
     return this.prismaService.user.findMany({
       where: {
-        id: id,
+        nickName,
       },
       include: {
         board: {

@@ -48,9 +48,9 @@ export class BoardsController {
   }
 
   // 특정 사용자가 작성한 게시글 가져오기
-  @Get('/author/:id')
-  getUsersBoard(@Param('id') id: number) {
-    return this.postsService.getUsersBoards(id);
+  @Get('/author/:nickName')
+  getUsersBoard(@Param('nickName') nickName: string) {
+    return this.postsService.getUsersBoards(nickName);
   }
 
   // 게시물 생성
