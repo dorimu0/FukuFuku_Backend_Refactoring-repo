@@ -55,14 +55,31 @@ export class UserRepository {
   }
 
   // 유저 페이지
-  async getUserPage(nickName: string) {
+  async getUserPage(nickName: string, page: number, keyword: string = undefined) {
+    const TAKE_NUM = 10;
+    const skip = TAKE_NUM * page;
+    const take = TAKE_NUM * (page + 1);
+
     return this.prisma.user.findMany({
       where: {
-        nickName: nickName
+        nickName: nickName,
       },
       select: {
         board: {
-          include: { boardImage: true, like: true }
+          skip,
+          take,
+          include: {
+            boardImage: true,
+            like: true
+          },
+          where: {
+            title: {
+              contains: keyword
+            },
+            content: {
+              contains: keyword
+            }
+          }
         }
       }
     });

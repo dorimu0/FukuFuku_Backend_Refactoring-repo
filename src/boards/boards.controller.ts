@@ -34,10 +34,10 @@ export class BoardsController {
   // 게시판 가져오기
   @Get()
   getAllBoard(
-    @Query() option: SearchBoardDto
+    @Query() option: SearchBoardDto,
   ): Promise<Board[]> {
-    const dateOption = { gte: option.gte, lte: option.lte }
-    return this.postsService.getAllBoards(option.option, dateOption);
+    const dateOption = { gte: option.gte, lte: option.lte };
+    return this.postsService.getAllBoards(option.option, dateOption, option.page);
   }
 
   // 특정한 글 하나 가져오기
@@ -48,9 +48,9 @@ export class BoardsController {
   }
 
   // 특정 사용자가 작성한 게시글 가져오기
-  @Get('/author/:id')
-  getUsersBoard(@Param('id') id: number) {
-    return this.postsService.getUsersBoards(id);
+  @Get('/author/:nickName')
+  getUsersBoard(@Param('nickName') nickName: string) {
+    return this.postsService.getUsersBoards(nickName);
   }
 
   // 게시물 생성

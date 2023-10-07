@@ -123,12 +123,12 @@ export class UserService {
   }
 
   // 마이페이지 이동
-  async mypage(nickName: string) {
+  async mypage(nickName: string, page: number = 0) {
     // 유저 닉네임으로 조회 - 닉네임은 기본적으로 email과 같은 값을 가지도록 해 참조하지 못하는 일은 생기지 않을 것임
-    const userPage = await this.userRepository.getUserPage(nickName);
+    const userPage = await this.userRepository.getUserPage(nickName, page);
 
     if (!userPage.length) throw new NotFoundException();
-    return userPage;
+    return userPage[0].board;
   }
 
   // 사용자 본인이 좋아요 눌렀던 게시글 가져오기
