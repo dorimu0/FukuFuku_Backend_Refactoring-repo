@@ -24,4 +24,7 @@ export class SearchBoardDto {
   @IsOptional()
   @Matches(IsDate)
   readonly lte: string;
+
+  @IsOptional()
+  readonly page: number;
 }

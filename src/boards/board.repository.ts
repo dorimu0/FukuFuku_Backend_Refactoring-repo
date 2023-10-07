@@ -3,16 +3,20 @@ import { PrismaService } from 'src/prisma.service';
 import { Board, Prisma } from '@prisma/client';
 import { CreateBoardDto } from './dto/create-board.dto';
 import { UpdateBoardDto } from './dto/update-board.dto';
-const TAKE = 10;
 
 @Injectable()
 export class BoardRepository {
   constructor(private readonly prismaService: PrismaService) {}
 
   /** 게시판 가져오기 */
-  async getAllBoards(searchOption: object | [] = undefined): Promise<Board[]> {
+  async getAllBoards(searchOption: object | [] = undefined, page: number): Promise<Board[]> {
+    const TAKE_NUM = 10;
+    const skip = TAKE_NUM * page;
+    const take = TAKE_NUM * (page + 1);
+
     return this.prismaService.board.findMany({
-      take: TAKE,
+      skip,
+      take,
       where: searchOption['where'],
       orderBy: searchOption['orderBy'],
       include: {
@@ -43,10 +47,10 @@ export class BoardRepository {
   }
 
   /** 유저가 작성한 글 가져오기 */
-  async getUsersBoards(id: number) {
+  async getUsersBoards(nickName: string) {
     return this.prismaService.user.findMany({
       where: {
-        id: id,
+        nickName,
       },
       include: {
         board: {

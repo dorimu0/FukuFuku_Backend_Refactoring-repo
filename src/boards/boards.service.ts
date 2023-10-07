@@ -1,5 +1,5 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
-import { Board } from '@prisma/client';
+import { Board, Image } from '@prisma/client';
 import { BoardRepository } from './board.repository';
 import { CreateBoardDto } from './dto/create-board.dto';
 import { UpdateBoardDto } from './dto/update-board.dto';
@@ -11,7 +11,7 @@ export class BoardsService {
   constructor(
     private readonly postRepository: BoardRepository,
     private readonly postImageRepository: PostImageRepository,
-  ) {}
+  ) { }
 
   /** 게시판 가져오기 - 조회 순서 옵션, 날짜 옵션 */
   async getAllBoards(
@@ -19,7 +19,8 @@ export class BoardsService {
     createdAt: {
       gte: string | Date,
       lte: string | Date,
-    } = undefined
+    } = undefined,
+    page: number = 0
   ): Promise<Board[]> {
 
     let searchOption: object = {
@@ -48,7 +49,8 @@ export class BoardsService {
       createdAt.lte = new Date(createdAt.lte);
       searchOption['where'] = { createdAt };
     }
-    return this.postRepository.getAllBoards(searchOption);
+
+    return this.postRepository.getAllBoards(searchOption, page);
   }
 
   /** 특정한 글 하나 가져오기 */
@@ -64,22 +66,24 @@ export class BoardsService {
   }
 
   /** 유저가 쓴 글 전체 불러오기 */
-  async getUsersBoards(u_id: number) {
-    const usersBoards = await this.postRepository.getUsersBoards(u_id);
+  async getUsersBoards(nickName: string) {
+    const usersBoards = await this.postRepository.getUsersBoards(nickName);
 
     if (!usersBoards.length) throw new NotFoundException();
     return usersBoards;
   }
 
-  /** 게시글 생성, 이미지 연결, 업로드된 이미지가 DB에 없다면 에러 발생 */
+  /** 게시글 생성, 이미지 연결, 업로드된 이미지가 DB image 테이블에 없다면 에러 발생 */
   async createBoard(createPostDto: CreateBoardDto): Promise<Board> {
     const isStoredImage = await this.isStoredImage(createPostDto);
-    await this.postImageRepository.deleteTempImage(createPostDto.images);
 
     // 저장된 이미지와 등록하려는 이미지가 다른 경우
     if (!isStoredImage) {
-      throw new BadRequestException('등록할 수 없는 이미지가 포함 되어 있습니다.')
+      throw new BadRequestException('등록할 수 없는 이미지가 포함 되어 있습니다.');
     }
+
+    // 임시저장한 곳에서 삭제
+    await this.postImageRepository.deleteTempImage(createPostDto.images);
 
     const board = await this.postRepository.create(createPostDto);
 
@@ -159,7 +163,32 @@ export class BoardsService {
     }
 
     const storedImages = await this.postImageRepository.getTempImage(createPostDto.images);
+
+    const isSavable = this.validateImageList(storedImages, createPostDto.images);
     
-    return storedImages?.length === createPostDto.images?.length;
+    return isSavable;
+  }
+  
+  /** 유저가 제출한 이미지 목록이 임시저장된 이미지 목록에 있는 지 확인 */
+  validateImageList(storedImages: Image[], images: Image[]) {
+    // 임시 저장된 이미지 길이 보다 게시글에 사용하려는 이미지 수가 더 많으면 안됨
+    const lengthCheck = storedImages.length >= images.length;
+
+    if (!lengthCheck) {
+      return false;
+    }
+
+    // url 값을 추출
+    const storedUrls = storedImages.map((image) => (image.url));
+    
+    // 전달된 값들의 url 값을 안에서 찾아본다.
+    for (const image of images) {
+      const isIn = storedUrls.includes(image.url);
+      if (!isIn) {
+        return false;
+      }
+    }
+
+    return true;
   }
 }
