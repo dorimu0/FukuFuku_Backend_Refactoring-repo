@@ -5,6 +5,7 @@ import {
   GoneException,
   Res,
   UnprocessableEntityException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Request, Response } from 'express';
@@ -36,9 +37,8 @@ export class AccessGuard implements CanActivate {
       if (error?.name === 'TokenExpiredError') {
         throw new GoneException(error);
       }
-      // 만료된 경우가 아닐 시에 로그인 redirect
-      const response = context.switchToHttp().getResponse();
-      this.reLogin(response);
+
+      throw new UnauthorizedException();
     }
     return true;
   }
@@ -51,9 +51,5 @@ export class AccessGuard implements CanActivate {
     } catch (error) {
       throw new UnprocessableEntityException(error.name);
     }
-  }
-
-  async reLogin(@Res() response: Response) {
-    response.redirect(this.configService.get<string>('GOAUTH_RELOGIN_URL'));
   }
 }
