@@ -33,7 +33,7 @@ export class UserRepository {
 
   async createUser(data: Prisma.UserCreateInput): Promise<User> {
     return this.prisma.user.create({
-      data: { ...data, nickName: data.email }
+      data: { ...data, nickName: data.email.split("@")[0] }
     });
   }
 
