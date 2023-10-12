@@ -14,5 +14,8 @@ export class CreateBoardDto {
   readonly id: number; // 유저의 id를 여기에 추가해야합니다.
 
   @IsOptional()
-  readonly images: Image[] // 업로드 했던 이미지들을 담아서 보냅니다.
+  readonly images: Image[]; // 업로드 했던 이미지들을 담아서 보냅니다.
+
+  @IsOptional()
+  readonly tags: string[];
 }
