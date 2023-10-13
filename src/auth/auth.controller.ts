@@ -1,18 +1,15 @@
 import {
   Controller,
-  Get,
-  Req,
   UseGuards,
   Request,
   Body,
   Post,
+  Get,
 } from '@nestjs/common';
 import { RefreshGuard } from 'src/common/guard/refresh.guard';
 import { AuthService } from './auth.service';
-import { config } from 'dotenv';
-import { responseFormat, OK, Created } from '../common/util/responseFormat';
-
-config();
+import { responseFormat, Created, OK } from '../common/util/responseFormat';
+import { AccessGuard } from 'src/common/guard/access.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -30,5 +27,11 @@ export class AuthController {
     const accessToken = req.body.accessToken;
 
     return responseFormat(Created, { accessToken });
+  }
+
+  @UseGuards(AccessGuard)
+  @Get('')
+  verifyUser() {
+    return OK;
   }
 }
