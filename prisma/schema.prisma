@@ -75,7 +75,7 @@ model BoardImage {
 
 model Comment {
   id        Int     @id @unique @default(autoincrement())
-  commenter String  @db.VarChar(10)
+  commenter String  @db.VarChar(20)
   content   String  @db.VarChar(100)
   img       String
   like      Int?    @default(0)
@@ -88,7 +88,7 @@ model Comment {
 
 model Reply {
   id        Int     @unique @default(autoincrement())
-  commenter String  @db.VarChar(10)
+  commenter String  @db.VarChar(20)
   img       String
   content   String  @db.VarChar(100)
   c_id      Int
