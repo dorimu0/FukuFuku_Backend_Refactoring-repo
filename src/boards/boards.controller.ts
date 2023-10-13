@@ -20,7 +20,7 @@ import { SearchBoardDto } from './dto/search-board.dto';
 
 @Controller('boards')
 export class BoardsController {
-  constructor(private postsService: BoardsService) { }
+  constructor(private postsService: BoardsService) {}
 
   // 특정 사용자가 쓴 글 내에서 검색
   @Get('user/:nickName')
@@ -33,11 +33,13 @@ export class BoardsController {
 
   // 게시판 가져오기
   @Get()
-  getAllBoard(
-    @Query() option: SearchBoardDto,
-  ): Promise<Board[]> {
+  getAllBoard(@Query() option: SearchBoardDto): Promise<Board[]> {
     const dateOption = { gte: option.gte, lte: option.lte };
-    return this.postsService.getAllBoards(option.option, dateOption, option.page);
+    return this.postsService.getAllBoards(
+      option.option,
+      dateOption,
+      option.page,
+    );
   }
 
   // 특정한 글 하나 가져오기
@@ -57,9 +59,7 @@ export class BoardsController {
   @IsAuthenticable(UserRoleGuard, 'author', 'id')
   @HttpCode(201)
   @Post()
-  createBoard(
-    @Body('data') createPostDto: CreateBoardDto,
-  ): Promise<Board> {
+  createBoard(@Body('data') createPostDto: CreateBoardDto): Promise<Board> {
     return this.postsService.createBoard(createPostDto);
   }
 
@@ -74,9 +74,7 @@ export class BoardsController {
   // 글 수정
   @IsAuthenticable(UserRoleGuard, 'author', 'id')
   @Patch('/edit')
-  updateBoard(
-    @Body('boardData') editBoardDto: UpdateBoardDto,
-  ): Promise<Board> {
+  updateBoard(@Body('data') editBoardDto: UpdateBoardDto): Promise<Board> {
     return this.postsService.updateBoard(editBoardDto);
   }
 

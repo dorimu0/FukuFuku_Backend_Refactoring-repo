@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { Board, Image } from '@prisma/client';
 import { BoardRepository } from './board.repository';
 import { CreateBoardDto } from './dto/create-board.dto';
@@ -11,36 +15,25 @@ export class BoardsService {
   constructor(
     private readonly postRepository: BoardRepository,
     private readonly postImageRepository: PostImageRepository,
-  ) { }
+  ) {}
 
   /** 게시판 가져오기 - 조회 순서 옵션, 날짜 옵션 */
   async getAllBoards(
     option: 'recent' | 'trendy' = undefined,
     createdAt: {
-      gte: string | Date,
-      lte: string | Date,
+      gte: string | Date;
+      lte: string | Date;
     } = undefined,
-    page: number = 0
+    page: number = 0,
   ): Promise<Board[]> {
-
     let searchOption: object = {
-      orderBy: [
-        { id: 'desc' },
-        { like: { _count: 'desc' }, }
-      ]
+      orderBy: [{ id: 'desc' }, { like: { _count: 'desc' } }],
     };
 
     if (option === 'recent') {
-      searchOption['orderBy'] = [
-        { id: 'desc' }
-      ]
-    }
-
-    else {
-      searchOption['orderBy'] = [
-        { id: 'desc' },
-        { views: 'desc' }
-      ]
+      searchOption['orderBy'] = [{ id: 'desc' }];
+    } else {
+      searchOption['orderBy'] = [{ id: 'desc' }, { views: 'desc' }];
     }
 
     // 값이 두 개 다 들어온 경우에만 적용
@@ -79,7 +72,9 @@ export class BoardsService {
 
     // 저장된 이미지와 등록하려는 이미지가 다른 경우
     if (!isStoredImage) {
-      throw new BadRequestException('등록할 수 없는 이미지가 포함 되어 있습니다.');
+      throw new BadRequestException(
+        '등록할 수 없는 이미지가 포함 되어 있습니다.',
+      );
     }
 
     // 임시저장한 곳에서 삭제
@@ -111,31 +106,34 @@ export class BoardsService {
 
   /** 게시글 수정 - 이미지, 제목, 내용 */
   updateBoard(updateBoardDto: UpdateBoardDto): Promise<Board> {
-    if (updateBoardDto?.images) {
-      this.connectImagesAndBoard(updateBoardDto.b_id, updateBoardDto);
-    }
+    // if (updateBoardDto?.images) {
+    //   this.connectImagesAndBoard(updateBoardDto.b_id, updateBoardDto);
+    // }
     return this.postRepository.updateBoard(updateBoardDto);
   }
 
   /** 게시글 검색 */
-  async searchBoard(keyword: string, nickName: string = undefined): Promise<Board[]> {
+  async searchBoard(
+    keyword: string,
+    nickName: string = undefined,
+  ): Promise<Board[]> {
     const searchOption = {
       OR: [
         {
-          title: { contains: keyword, },
+          title: { contains: keyword },
         },
         {
-          content: { contains: keyword, },
+          content: { contains: keyword },
         },
         {
           board_tag: {
             some: {
-              tag: { name: { contains: keyword, }, },
+              tag: { name: { contains: keyword } },
             },
           },
         },
       ],
-    }
+    };
 
     if (nickName) {
       const AND = [{ user: { nickName } }];
@@ -162,13 +160,18 @@ export class BoardsService {
       return true;
     }
 
-    const storedImages = await this.postImageRepository.getTempImage(createPostDto.images);
+    const storedImages = await this.postImageRepository.getTempImage(
+      createPostDto.images,
+    );
 
-    const isSavable = this.validateImageList(storedImages, createPostDto.images);
-    
+    const isSavable = this.validateImageList(
+      storedImages,
+      createPostDto.images,
+    );
+
     return isSavable;
   }
-  
+
   /** 유저가 제출한 이미지 목록이 임시저장된 이미지 목록에 있는 지 확인 */
   validateImageList(storedImages: Image[], images: Image[]) {
     // 임시 저장된 이미지 길이 보다 게시글에 사용하려는 이미지 수가 더 많으면 안됨
@@ -179,8 +182,8 @@ export class BoardsService {
     }
 
     // url 값을 추출
-    const storedUrls = storedImages.map((image) => (image.url));
-    
+    const storedUrls = storedImages.map((image) => image.url);
+
     // 전달된 값들의 url 값을 안에서 찾아본다.
     for (const image of images) {
       const isIn = storedUrls.includes(image.url);

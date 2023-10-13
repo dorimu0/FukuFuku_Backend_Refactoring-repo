@@ -9,7 +9,10 @@ export class BoardRepository {
   constructor(private readonly prismaService: PrismaService) {}
 
   /** 게시판 가져오기 */
-  async getAllBoards(searchOption: object | [] = undefined, page: number): Promise<Board[]> {
+  async getAllBoards(
+    searchOption: object | [] = undefined,
+    page: number,
+  ): Promise<Board[]> {
     const TAKE_NUM = 10;
     const skip = TAKE_NUM * page;
     const take = TAKE_NUM * (page + 1);
@@ -29,9 +32,7 @@ export class BoardRepository {
   }
 
   /** 특정한 글 하나 가져오기 */
-  async getBoardById(
-    userWhereUniqueInput: number,
-  ) {
+  async getBoardById(userWhereUniqueInput: number) {
     return this.prismaService.board.findFirst({
       where: {
         id: userWhereUniqueInput,
@@ -41,7 +42,7 @@ export class BoardRepository {
         comment: { include: { user: true, reply: true } },
         user: { select: { picture: true, nickName: true, introduction: true } },
         board_tag: { select: { tag: true } },
-        boardImage: { select: { url: true } }
+        boardImage: { select: { url: true } },
       },
     });
   }
@@ -76,6 +77,27 @@ export class BoardRepository {
       },
     });
 
+    // 태그 생성
+    for (const tagName of createPostDto.tags) {
+      const tag = await this.prismaService.tag.upsert({
+        where: { name: tagName },
+        create: { name: tagName },
+        update: { name: tagName },
+      });
+
+      // 게시글과 태그를 연결
+      await this.prismaService.board_Tag.create({
+        data: {
+          board: {
+            connect: { id: board.id },
+          },
+          tag: {
+            connect: { id: tag.id },
+          },
+        },
+      });
+    }
+
     return board;
   }
 
@@ -88,15 +110,42 @@ export class BoardRepository {
 
   /** 게시글 수정 */
   async updateBoard(editBoardDto: UpdateBoardDto): Promise<Board> {
-    const { title, content, b_id } = editBoardDto;
-
-    return this.prismaService.board.update({
-      where: { id: b_id },
+    const board = await this.prismaService.board.update({
+      where: { id: editBoardDto.b_id },
       data: {
-        title,
-        content,
+        title: editBoardDto.title,
+        content: editBoardDto.content,
       },
     });
+
+    // 기존 연결 삭제
+    await this.prismaService.board_Tag.deleteMany({
+      where: {
+        b_id: editBoardDto.b_id,
+      },
+    });
+
+    for (const tagName of editBoardDto.tags) {
+      const tag = await this.prismaService.tag.upsert({
+        where: { name: tagName },
+        create: { name: tagName },
+        update: { name: tagName },
+      });
+
+      // 게시글과 태그를 연결
+      await this.prismaService.board_Tag.create({
+        data: {
+          board: {
+            connect: { id: board.id },
+          },
+          tag: {
+            connect: { id: tag.id },
+          },
+        },
+      });
+    }
+
+    return board;
   }
 
   /** 게시글 검색 태그도 검색 */
