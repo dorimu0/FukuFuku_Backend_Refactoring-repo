@@ -1,5 +1,5 @@
 import { IsNotEmptyString } from "src/common/decorators/is-not-empty-string.decorator";
-import { IsIn, IsOptional, Matches, Min, ValidateIf } from "class-validator";
+import { IsIn, IsOptional, Matches, ValidateIf } from "class-validator";
 import { BadRequestException } from "@nestjs/common";
 const IsDate = /^(19|20)\d\d-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/;
 
