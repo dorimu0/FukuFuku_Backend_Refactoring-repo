@@ -2,13 +2,13 @@ import {
   BadRequestException,
   Injectable,
   NotFoundException,
-} from '@nestjs/common';
-import { Board, Image } from '@prisma/client';
-import { BoardRepository } from './board.repository';
-import { CreateBoardDto } from './dto/create-board.dto';
-import { UpdateBoardDto } from './dto/update-board.dto';
-import { PostImageRepository } from './boardImage.repository';
-import { deleteObject } from '../common/util/deleteObjectFromS3';
+} from "@nestjs/common";
+import { Board, Image } from "@prisma/client";
+import { BoardRepository } from "./board.repository";
+import { CreateBoardDto } from "./dto/create-board.dto";
+import { UpdateBoardDto } from "./dto/update-board.dto";
+import { PostImageRepository } from "./boardImage.repository";
+import { deleteObject } from "../common/util/deleteObjectFromS3";
 
 @Injectable()
 export class BoardsService {
@@ -19,38 +19,38 @@ export class BoardsService {
 
   /** 게시판 가져오기 - 조회 순서 옵션, 날짜 옵션 */
   async getAllBoards(
-    option: 'recent' | 'trendy' = undefined,
+    option: "recent" | "trendy" = undefined,
     createdAt: {
       gte: string | Date;
       lte: string | Date;
     } = undefined,
-    page: number = 0,
+    lastId: number = 0,
   ): Promise<Board[]> {
     let searchOption: object = {
-      orderBy: [{ id: 'desc' }, { like: { _count: 'desc' } }],
+      orderBy: [{ id: "desc" }, { like: { _count: "desc" } }],
     };
 
-    if (option === 'recent') {
-      searchOption['orderBy'] = [{ id: 'desc' }];
+    if (option === "recent") {
+      searchOption["orderBy"] = [{ id: "desc" }];
     } else {
-      searchOption['orderBy'] = [{ id: 'desc' }, { views: 'desc' }];
+      searchOption["orderBy"] = [{ id: "desc" }, { views: "desc" }];
     }
 
     // 값이 두 개 다 들어온 경우에만 적용
     if (createdAt.gte && createdAt.lte) {
       createdAt.gte = new Date(createdAt.gte);
       createdAt.lte = new Date(createdAt.lte);
-      searchOption['where'] = { createdAt };
+      searchOption["where"] = { createdAt };
     }
 
-    return this.postRepository.getAllBoards(searchOption, page);
+    return this.postRepository.getAllBoards(searchOption, lastId);
   }
 
   /** 특정한 글 하나 가져오기 */
   async getBoardById(b_id: number) {
     const post = await this.postRepository.getBoardById(b_id);
     if (post === null) {
-      throw new NotFoundException('No post');
+      throw new NotFoundException("No post");
     }
 
     // 조회수 업데이트
@@ -73,7 +73,7 @@ export class BoardsService {
     // 저장된 이미지와 등록하려는 이미지가 다른 경우
     if (!isStoredImage) {
       throw new BadRequestException(
-        '등록할 수 없는 이미지가 포함 되어 있습니다.',
+        "등록할 수 없는 이미지가 포함 되어 있습니다.",
       );
     }
 
@@ -137,7 +137,7 @@ export class BoardsService {
 
     if (nickName) {
       const AND = [{ user: { nickName } }];
-      searchOption['AND'] = AND;
+      searchOption["AND"] = AND;
     }
 
     return this.postRepository.searchBoard(searchOption);
