@@ -3,12 +3,13 @@ import {
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
-import { Board, Image } from "@prisma/client";
+import { Board } from "@prisma/client";
 import { BoardRepository } from "./board.repository";
 import { CreateBoardDto } from "./dto/create-board.dto";
 import { UpdateBoardDto } from "./dto/update-board.dto";
 import { PostImageRepository } from "./boardImage.repository";
 import { deleteObject } from "../common/util/deleteObjectFromS3";
+import { Image } from "./dto/create-board.dto";
 
 @Injectable()
 export class BoardsService {
@@ -69,7 +70,6 @@ export class BoardsService {
   /** 게시글 생성, 이미지 연결, 업로드된 이미지가 DB image 테이블에 없다면 에러 발생 */
   async createBoard(createPostDto: CreateBoardDto): Promise<Board> {
     const isStoredImage = await this.isStoredImage(createPostDto);
-
     // 저장된 이미지와 등록하려는 이미지가 다른 경우
     if (!isStoredImage) {
       throw new BadRequestException(
@@ -77,13 +77,18 @@ export class BoardsService {
       );
     }
 
-    // 임시저장한 곳에서 삭제
-    await this.postImageRepository.deleteTempImage(createPostDto.images);
+    const userStoredImage = Array.isArray(isStoredImage);
+
+    // 이미지가 있는 경우
+    if (userStoredImage) {
+      // 임시저장한 곳에서 삭제
+      await this.postImageRepository.deleteTempImage(createPostDto.images);
+    }
 
     const board = await this.postRepository.create(createPostDto);
 
-    if (createPostDto?.images) {
-      this.connectImagesAndBoard(board.id, createPostDto);
+    if (userStoredImage) {
+      this.connectImagesAndBoard(board.id, isStoredImage);
     }
     return board;
   }
@@ -105,10 +110,28 @@ export class BoardsService {
   }
 
   /** 게시글 수정 - 이미지, 제목, 내용 */
-  updateBoard(updateBoardDto: UpdateBoardDto): Promise<Board> {
-    // if (updateBoardDto?.images) {
-    //   this.connectImagesAndBoard(updateBoardDto.b_id, updateBoardDto);
-    // }
+  async updateBoard(updateBoardDto: UpdateBoardDto): Promise<Board> {
+    // 이미지 수정 시 기존 이미지 삭제
+    const previousImages = await this.postImageRepository.getImages(
+      updateBoardDto.b_id,
+    );
+
+    const keys = [];
+
+    const updateImages = updateBoardDto.images.map((image) => {
+      return image.url;
+    });
+
+    previousImages.forEach((image) => {
+      if (!updateImages.includes(image.url)) {
+        keys.push(image.key);
+      }
+    });
+
+    if (keys.length) {
+      deleteObject(keys);
+    }
+
     return this.postRepository.updateBoard(updateBoardDto);
   }
 
@@ -144,8 +167,11 @@ export class BoardsService {
   }
 
   /** 이미지와 게시글 연결 */
-  async connectImagesAndBoard(b_id: number, createPostDto: CreateBoardDto) {
-    const connectData = createPostDto.images.map((image) => {
+  async connectImagesAndBoard(
+    b_id: number,
+    storedImage: { url: string; key: string }[],
+  ) {
+    const connectData = storedImage.map((image) => {
       return { b_id, url: image.url, key: image.key };
     });
 
@@ -169,7 +195,7 @@ export class BoardsService {
       createPostDto.images,
     );
 
-    return isSavable;
+    return isSavable ? storedImages : false;
   }
 
   /** 유저가 제출한 이미지 목록이 임시저장된 이미지 목록에 있는 지 확인 */
