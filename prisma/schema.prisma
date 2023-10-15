@@ -22,6 +22,7 @@ model User {
   comment      Comment[]
   reply        Reply[]
   like         Like[]
+  userImage    UserImage?
 }
 
 model Board {
@@ -98,8 +99,13 @@ model Reply {
 }
 
 model Image {
-  url String @db.VarChar(100)
+  url String @id @db.VarChar(100)
   key String
+}
 
-  @@id([url, key])
+model UserImage {
+  url String @id @db.VarChar(100)
+  key String
+  u_id Int @unique
+  user  User?  @relation(fields: [u_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }
