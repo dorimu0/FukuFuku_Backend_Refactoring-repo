@@ -1,10 +1,9 @@
-import { IsNotEmptyString } from 'src/common/decorators/is-not-empty-string.decorator';
-import { IsNotEmptyNumber } from 'src/common/decorators/is-not-empty-number.decorator';
-import { IsOptional } from 'class-validator';
+import { IsNotEmptyString } from "src/common/decorators/is-not-empty-string.decorator";
+import { IsNotEmptyNumber } from "src/common/decorators/is-not-empty-number.decorator";
+import { IsOptional } from "class-validator";
 
-interface Image {
+export interface Image {
   url: string;
-  key: string;
 }
 
 export class CreateBoardDto {
