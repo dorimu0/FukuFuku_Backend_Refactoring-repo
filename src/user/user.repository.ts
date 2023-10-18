@@ -1,10 +1,10 @@
-import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../prisma.service';
-import { User, Prisma } from '@prisma/client';
+import { Injectable } from "@nestjs/common";
+import { PrismaService } from "../prisma.service";
+import { User, Prisma } from "@prisma/client";
 
 @Injectable()
 export class UserRepository {
-  constructor(private prisma: PrismaService) { }
+  constructor(private prisma: PrismaService) {}
 
   async findOne(
     userWhereUniqueInput: Prisma.UserWhereInput,
@@ -33,7 +33,16 @@ export class UserRepository {
 
   async createUser(data: Prisma.UserCreateInput): Promise<User> {
     return this.prisma.user.create({
-      data: { ...data, nickName: data.email.split("@")[0] }
+      data: {
+        ...data,
+        nickName: data.email.split("@")[0],
+        userImage: {
+          create: {
+            url: data.picture,
+            key: "",
+          },
+        },
+      },
     });
   }
 
@@ -55,7 +64,11 @@ export class UserRepository {
   }
 
   // 유저 페이지
-  async getUserPage(nickName: string, page: number, keyword: string = undefined) {
+  async getUserPage(
+    nickName: string,
+    page: number,
+    keyword: string = undefined,
+  ) {
     const TAKE_NUM = 10;
     const skip = TAKE_NUM * page;
     const take = TAKE_NUM * (page + 1);
@@ -70,18 +83,18 @@ export class UserRepository {
           take,
           include: {
             boardImage: true,
-            like: true
+            like: true,
           },
           where: {
             title: {
-              contains: keyword
+              contains: keyword,
             },
             content: {
-              contains: keyword
-            }
-          }
-        }
-      }
+              contains: keyword,
+            },
+          },
+        },
+      },
     });
   }
 
@@ -92,10 +105,10 @@ export class UserRepository {
       select: {
         like: {
           select: {
-            board: true
-          }
-        }
-      }
-    })
+            board: true,
+          },
+        },
+      },
+    });
   }
 }
